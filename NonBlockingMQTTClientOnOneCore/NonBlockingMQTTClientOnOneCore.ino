@@ -189,15 +189,15 @@ void setup()
         0            /* pin task to core 0 */
     );
 
-    // xTaskCreatePinnedToCore(
-    //     Core1Code,   /* Task function. */
-    //     "Core1Code", /* name of task. */
-    //     5000,        /* Stack size of task */
-    //     NULL,        /* parameter of the task */
-    //     1,           /* priority of the task */
-    //     NULL,        /* Task handle to keep track of created task */
-    //     1            /* pin task to core 1 */
-    // );
+    xTaskCreatePinnedToCore(
+        Core1Code,   /* Task function. */
+        "Core1Code", /* name of task. */
+        5000,        /* Stack size of task */
+        NULL,        /* parameter of the task */
+        1,           /* priority of the task */
+        NULL,        /* Task handle to keep track of created task */
+        1            /* pin task to core 1 */
+    );
 }
 
 void loop()

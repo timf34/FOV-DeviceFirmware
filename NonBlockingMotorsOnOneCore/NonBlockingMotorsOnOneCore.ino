@@ -27,11 +27,10 @@ float ySpd = 8000;
 #define hall_X 36
 #define hall_Y 38
 
-#define use_second_core true 
+#define use_second_core true
 
 FPSCounter fps;
 FPSCounter fps2;
-
 
 // Homing Sequence Variables
 long initial_homing_X = -1; // X Axis
@@ -73,13 +72,13 @@ void Core1Code(void *pvParameters)
     for (;;)
     {
         fps2.start();
-        
-        Serial.println("Core 1");
-        delay(5000); 
 
-        fps.stop();
+        delay(5000);
+        Serial.println("Core 1");
+
+        fps2.stop();
         float fps_val2 = fps2.getFPS();
-        Serial.println("FPS: " + String(fps_val2));
+        Serial.println("FPS2: " + String(fps_val2));
     }
 }
 
@@ -103,15 +102,18 @@ void setup()
         0            /* pin task to core 0 */
     );
 
-    xTaskCreatePinnedToCore(
-        Core1Code,   /* Task function. */
-        "Core1Code", /* name of task. */
-        5000,       /* Stack size of task */
-        NULL,        /* parameter of the task */
-        1,           /* priority of the task */
-        NULL,        /* Task handle to keep track of created task */
-        0            /* pin task to core 0 */
-    );
+    if (use_second_core == true)
+    {
+        xTaskCreatePinnedToCore(
+            Core1Code,   /* Task function. */
+            "Core1Code", /* name of task. */
+            5000,        /* Stack size of task */
+            NULL,        /* parameter of the task */
+            1,           /* priority of the task */
+            NULL,        /* Task handle to keep track of created task */
+            0            /* pin task to core 0 */
+        );
+    }
 }
 
 void loop()

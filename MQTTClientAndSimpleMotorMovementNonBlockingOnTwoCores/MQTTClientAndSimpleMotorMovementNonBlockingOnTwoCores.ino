@@ -241,40 +241,8 @@ float delta = PI / 100; // Increment
 float a[9] = {0, PI / 4, PI / 2, (3 * PI) / 4, PI, (5 * PI) / 4, (3 * PI) / 2, (7 * PI) / 4, 2 * PI};
 void loopMovement()
 {
-
     moveStepsToPos(0, 0);
-    vTaskDelay(20);
     moveStepsToPos(48, 26);
-    vTaskDelay(20);
-    // moveStepsToPos(90, 0);
-    // vTaskDelay(20);
-    // moveStepsToPos(48, 26);
-    // Serial.println("First Circle");
-    // for (int i = 0; i < 9; i++)
-    // {
-    //     theta = a[i];
-    //     moveStepsToPos(48 + r + cos(theta) * r, 26 + sin(theta) * r);
-    //     vTaskDelay(20);
-    // }
-
-    // moveStepsToPos(90, 50);
-    // vTaskDelay(20);
-    // moveStepsToPos(48, 26);
-    // vTaskDelay(20);
-
-    // Serial.println("Second Circle");
-    // for (int i = 0; i < 9; i++)
-    // {
-    //     theta = a[i];
-    //     moveStepsToPos(48 - r - cos(theta) * r, 26 - sin(theta) * r);
-    //     vTaskDelay(20);
-    // }
-
-    // vTaskDelay(20);
-    // moveStepsToPos(0, 50);
-    // vTaskDelay(20);
-    // moveStepsToPos(48, 26);
-    // vTaskDelay(20);
 }
 
 void speedCalc(float x1, float y1, float x2, float y2)
@@ -301,22 +269,41 @@ void speedCalc(float x1, float y1, float x2, float y2)
 
 void moveStepsToPos(long x, long y)
 {
-    stepper_X.setMaxSpeed(xSpd);
-    stepper_Y.setMaxSpeed(ySpd);
-    stepper_X.setAcceleration(xSpd * 50);
-    stepper_Y.setAcceleration(ySpd * 50);
+    // stepper_X.setMaxSpeed(xSpd);
+    // stepper_Y.setMaxSpeed(ySpd);
+    // stepper_X.setAcceleration(xSpd * 50);
+    // stepper_Y.setAcceleration(ySpd * 50);
+    stepper_X .setMaxSpeed(15000);
+    stepper_Y .setMaxSpeed(15000);
+    stepper_X .setAcceleration(15000 * 50);
+    stepper_Y .setAcceleration(15000 * 50);
+
+    Serial.print("X Speed: ");
+    Serial.println(xSpd);
+    Serial.print("Y Speed: ");
+    Serial.println(ySpd);
+
     digitalWrite(ENABLE_X, LOW);
-    digitalWrite(ENABLE_Y, LOW);
+    digitalWrite(ENABLE_Y, HIGH);
     positionMove[0] = x * xConvert;
     positionMove[1] = y * yConvert;
     steppers.moveTo(positionMove);
-    while (stepper_X.distanceToGo() != 0 || stepper_Y.distanceToGo() != 0)
-    {
-        stepper_X.run();
-        stepper_Y.run();
-    }
 
-    digitalWrite(ENABLE_X, HIGH);
+    // stepper_X.moveTo(positionMove[0]);
+    // stepper_Y.moveTo(positionMove[1]);
+
+
+    // while (stepper_X.distanceToGo() != 0 || stepper_Y.distanceToGo() != 0)
+    // {
+    //     // stepper_X.run();
+    //     // stepper_Y.run();
+    //     steppers.run();
+    //     vTaskDelay(1);
+    // }
+
+    steppers.runSpeedToPosition();
+
+    digitalWrite(ENABLE_X, LOW);
     digitalWrite(ENABLE_Y, HIGH);
 }
 

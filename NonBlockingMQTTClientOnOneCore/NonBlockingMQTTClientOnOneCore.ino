@@ -13,6 +13,8 @@
 #define AWS_IOT_PUBLISH_TOPIC "esp32/globalTest"
 #define AWS_IOT_SUBSCRIBE_TOPIC "dalymount_IRL/pub"
 
+#define run_second_core true
+
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
 
@@ -27,6 +29,36 @@ float ySpd = 0;
 
 int prevX = 0;
 int prevY = 0;
+
+class FPSCounter
+{
+private:
+    unsigned long start_time;
+    unsigned long end_time;
+    float fps;
+
+public:
+    FPSCounter() {}
+
+    void start()
+    {
+        start_time = millis();
+    }
+
+    void stop()
+    {
+        end_time = millis();
+        unsigned long execution_time = end_time - start_time;
+        fps = 1000.0 / execution_time;
+    }
+
+    float getFPS()
+    {
+        return fps;
+    }
+};
+
+FPSCounter fpsCounter;
 
 void wifiManagerSetup()
 {
@@ -102,7 +134,6 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
 
     prevX = xReceived;
     prevY = yReceived;
-
 }
 
 void Core0Code(void *pvParameters)
@@ -110,14 +141,20 @@ void Core0Code(void *pvParameters)
     // For our AWS code:)
     for (;;)
     {
+        fpsCounter.start();
         client.loop();
         vTaskDelay(100);
+
+        fpsCounter.stop();
+        Serial.print("FPS: ");
+        float fps = fpsCounter.getFPS();
+        Serial.println(fps);
     }
 }
 
 void Core1Code(void *pvParameters)
 {
-    for(;;)
+    for (;;)
     {
         // Random task to ensure that the core is running and core0 is non-blocking
         Serial.println("Core 1 is running");
@@ -152,15 +189,15 @@ void setup()
         0            /* pin task to core 0 */
     );
 
-    xTaskCreatePinnedToCore(
-        Core1Code,   /* Task function. */
-        "Core1Code", /* name of task. */
-        5000,        /* Stack size of task */
-        NULL,        /* parameter of the task */
-        1,           /* priority of the task */
-        NULL,        /* Task handle to keep track of created task */
-        1            /* pin task to core 1 */
-    );
+    // xTaskCreatePinnedToCore(
+    //     Core1Code,   /* Task function. */
+    //     "Core1Code", /* name of task. */
+    //     5000,        /* Stack size of task */
+    //     NULL,        /* parameter of the task */
+    //     1,           /* priority of the task */
+    //     NULL,        /* Task handle to keep track of created task */
+    //     1            /* pin task to core 1 */
+    // );
 }
 
 void loop()

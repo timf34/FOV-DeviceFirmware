@@ -30,6 +30,8 @@ float ySpd = 8000;
 #define use_second_core true 
 
 FPSCounter fps;
+FPSCounter fps2;
+
 
 // Homing Sequence Variables
 long initial_homing_X = -1; // X Axis
@@ -70,8 +72,14 @@ void Core1Code(void *pvParameters)
 {
     for (;;)
     {
+        fps2.start();
+        
         Serial.println("Core 1");
-        delay(5000);    
+        delay(5000); 
+
+        fps.stop();
+        float fps_val2 = fps2.getFPS();
+        Serial.println("FPS: " + String(fps_val2));
     }
 }
 

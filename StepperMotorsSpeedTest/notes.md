@@ -26,4 +26,5 @@ ELF file SHA256: 0000000000000000
 Rebooting...
 ```
 
-So it seems that `1000` is the limit, and that it should at least work at 2000. 
+So it seems that `1000` is the limit, and that it should at least work at 2000. **Yep anything less than 2000 we get the error above, even 1999.** 
+This holds when I remove the numbers above 2000 (i.e. remove 10000 through 5000, I'm sure it would hold if I removed up to 2000 too).

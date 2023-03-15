@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "atomic": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "exception": "cpp",
+        "limits": "cpp",
+        "memory": "cpp",
+        "mutex": "cpp",
+        "new": "cpp",
+        "ratio": "cpp",
+        "stop_token": "cpp",
+        "system_error": "cpp",
+        "thread": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "typeinfo": "cpp",
+        "utility": "cpp",
+        "xmemory": "cpp",
+        "xstddef": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp"
+    }
+}

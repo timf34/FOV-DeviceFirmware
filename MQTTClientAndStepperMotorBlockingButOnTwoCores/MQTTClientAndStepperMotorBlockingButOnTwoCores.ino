@@ -61,6 +61,20 @@ int yReceived = 0;
 int prevX = 0;
 int prevY = 0;
 
+std::mutex myMutex;  // create a mutex object
+
+
+
+struct TaskParams
+{
+    int param1; // x coord
+    int param2; // y coord
+    int param3;
+    int param4;
+};
+
+TaskParams taskParams = {xReceived, yReceived, xSpd, ySpd};
+
 void wifiManagerSetup()
 {
     WiFi.mode(WIFI_STA);
@@ -118,6 +132,9 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     StaticJsonDocument<200> doc;
     deserializeJson(doc, payload);
     float timestamp = doc["T"];
+
+    myMutex.lock();
+
     xReceived = doc["X"];
     yReceived = doc["Y"];
 
@@ -132,6 +149,14 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     Serial.println(xReceived);
     Serial.print("SpdCY Coord: ");
     Serial.println(yReceived);
+
+    // Assign the new values to the shared resource
+    taskParams.param1 = xReceived;
+    taskParams.param2 = yReceived;
+    taskParams.param3 = xSpd;
+    taskParams.param4 = ySpd;
+
+    myMutex.unlock();
 
     prevX = xReceived;
     prevY = yReceived;
@@ -165,10 +190,50 @@ void Core0Code(void *pvParameters)
     
     for (;;)
     {
-        // TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
-        // TIMERG0.wdt_feed=1;
-        // TIMERG0.wdt_wprotect=0;
-        loopMovement();
+        myMutex.lock();
+
+        TaskParams *passedParams = (TaskParams *)pvParameters;
+
+        int *xReceived = &passedParams->param1;
+        int *yReceived = &passedParams->param2;
+        int *xSpd = &passedParams->param3;
+        int *ySpd = &passedParams->param4;
+
+        if (*xSpd > 12000)
+        {
+            *xSpd = 12000;
+        }
+        if (*ySpd > 12000)
+        {
+            *ySpd = 12000;
+        }
+
+        // Print the shared value
+        Serial.println("TaskCore1: x = " + String(*xReceived));
+        Serial.println("TaskCore1: y = " + String(*yReceived));
+        Serial.println("TaskCore1: xSpd = " + String(*xSpd) + " ySpd = " + String(*ySpd));
+
+        stepper_X.setMaxSpeed(*xSpd);
+        stepper_Y.setMaxSpeed(*ySpd);
+        stepper_X.setAcceleration(*xSpd * 15);
+        stepper_Y.setAcceleration(*ySpd * 15);
+        digitalWrite(ENABLE_X, LOW);
+        digitalWrite(ENABLE_Y, LOW);
+        positionMove[0] = *xReceived * xConvert;
+        positionMove[1] = *yReceived * yConvert;
+
+        // // Deepcopy xReceived and yReceived to local variables (different memory addresses)
+        int xReceivedLocal = *xReceived;
+        int yReceivedLocal = *yReceived;
+
+        myMutex.unlock();
+
+
+        moveStepsToPos(xReceivedLocal, yReceivedLocal);
+
+
+        // // Delay for some time
+        // // vTaskDelay(100 / portTICK_PERIOD_MS);
         vTaskDelay(100);
 
     }
@@ -176,13 +241,10 @@ void Core0Code(void *pvParameters)
 
 void Core1Code(void *pvParameters)
 {
-    // For our AWS code:) 
     for (;;)
     {
-        // TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
-        // TIMERG0.wdt_feed=1;
-        // TIMERG0.wdt_wprotect=0;
         client.loop();
+        vTaskDelay(50);
     }
 }
 
@@ -206,7 +268,7 @@ void setup()
             Core0Code,   /* Task function. */
             "Core0Code", /* name of task. */
             20000,       /* Stack size of task */
-            NULL,        /* parameter of the task */
+            (void *)&taskParams,        /* parameter of the task */
             1,           /* priority of the task */
             NULL,        /* Task handle to keep track of created task */
             0            /* pin task to core 0 */
@@ -228,7 +290,6 @@ void setup()
 
 void loop()
 {
-
     Serial.println("Looping");
     Serial.println("Client state: " + String(client.state()));
     delay(5000);
@@ -239,11 +300,7 @@ float theta;            // Angle
 float delta = PI / 100; // Increment
 
 float a[9] = {0, PI / 4, PI / 2, (3 * PI) / 4, PI, (5 * PI) / 4, (3 * PI) / 2, (7 * PI) / 4, 2 * PI};
-void loopMovement()
-{
-    moveStepsToPos(0, 0);
-    moveStepsToPos(48, 26);
-}
+
 
 void speedCalc(float x1, float y1, float x2, float y2)
 {                // calculate required stepper speed based on distance the ball has the travel within an alotted time
@@ -284,26 +341,15 @@ void moveStepsToPos(long x, long y)
     Serial.println(ySpd);
 
     digitalWrite(ENABLE_X, LOW);
-    digitalWrite(ENABLE_Y, HIGH);
+    digitalWrite(ENABLE_Y, LOW);
+    
     positionMove[0] = x * xConvert;
     positionMove[1] = y * yConvert;
+
     steppers.moveTo(positionMove);
-
-    // stepper_X.moveTo(positionMove[0]);
-    // stepper_Y.moveTo(positionMove[1]);
-
-
-    // while (stepper_X.distanceToGo() != 0 || stepper_Y.distanceToGo() != 0)
-    // {
-    //     // stepper_X.run();
-    //     // stepper_Y.run();
-    //     steppers.run();
-    //     vTaskDelay(1);
-    // }
-
     steppers.runSpeedToPosition();
 
-    digitalWrite(ENABLE_X, LOW);
+    digitalWrite(ENABLE_X, HIGH);
     digitalWrite(ENABLE_Y, HIGH);
 }
 

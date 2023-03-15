@@ -20,7 +20,7 @@
 #define AWS_IOT_SUBSCRIBE_TOPIC "dalymount_IRL/pub"
 
 WiFiClientSecure net = WiFiClientSecure();
-PubSubClient client(net);   
+PubSubClient client(net);
 
 #define ENABLE_Y 19
 #define DIR_Y 13
@@ -46,7 +46,7 @@ float ySpd = 8000;
 #define hall_X 36
 #define hall_Y 38
 
-# define use_cores true 
+#define use_cores true
 
 // Homing Sequence Variables
 long initial_homing_X = -1; // X Axis
@@ -61,9 +61,7 @@ int yReceived = 0;
 int prevX = 0;
 int prevY = 0;
 
-std::mutex myMutex;  // create a mutex object
-
-
+std::mutex myMutex; // create a mutex object
 
 struct TaskParams
 {
@@ -187,7 +185,7 @@ void Core0Code(void *pvParameters)
     stepperSetup();
     hallSensorsSetup();
     homeSteppers();
-    
+
     for (;;)
     {
         myMutex.lock();
@@ -225,17 +223,16 @@ void Core0Code(void *pvParameters)
         // // Deepcopy xReceived and yReceived to local variables (different memory addresses)
         int xReceivedLocal = *xReceived;
         int yReceivedLocal = *yReceived;
+        int xSpdLocal = *xSpd;
+        int ySpdLocal = *ySpd;
 
         myMutex.unlock();
 
-
-        moveStepsToPos(xReceivedLocal, yReceivedLocal);
-
+        moveStepsToPos(xReceivedLocal, yReceivedLocal, xSpdLocal, ySpdLocal);
 
         // // Delay for some time
         // // vTaskDelay(100 / portTICK_PERIOD_MS);
         vTaskDelay(100);
-
     }
 }
 
@@ -248,7 +245,6 @@ void Core1Code(void *pvParameters)
     }
 }
 
-
 void setup()
 {
     Serial.begin(9600);
@@ -256,25 +252,26 @@ void setup()
     stepper_X.setCurrentPosition(0);
     stepper_Y.setCurrentPosition(0);
 
-    // Print the available memory 
+    // Print the available memory
     Serial.print("Free memory: ");
     Serial.println(ESP.getFreeHeap());
 
     connectAWS();
 
-    if (use_cores == true){
+    if (use_cores == true)
+    {
 
         xTaskCreatePinnedToCore(
-            Core0Code,   /* Task function. */
-            "Core0Code", /* name of task. */
-            20000,       /* Stack size of task */
-            (void *)&taskParams,        /* parameter of the task */
-            1,           /* priority of the task */
-            NULL,        /* Task handle to keep track of created task */
-            0            /* pin task to core 0 */
+            Core0Code,           /* Task function. */
+            "Core0Code",         /* name of task. */
+            20000,               /* Stack size of task */
+            (void *)&taskParams, /* parameter of the task */
+            1,                   /* priority of the task */
+            NULL,                /* Task handle to keep track of created task */
+            0                    /* pin task to core 0 */
         );
 
-        // TODO: note this code doesn't execute if we set the priotity to 0... and if we set it to 1, the above code doesn't execute... Lets try switching them around once I'm back. 
+        // TODO: note this code doesn't execute if we set the priotity to 0... and if we set it to 1, the above code doesn't execute... Lets try switching them around once I'm back.
         xTaskCreatePinnedToCore(
             Core1Code,   /* Task function. */
             "Core1Code", /* name of task. */
@@ -284,7 +281,6 @@ void setup()
             NULL,        /* Task handle to keep track of created task */
             1            /* pin task to core 1 */
         );
-
     }
 }
 
@@ -300,7 +296,6 @@ float theta;            // Angle
 float delta = PI / 100; // Increment
 
 float a[9] = {0, PI / 4, PI / 2, (3 * PI) / 4, PI, (5 * PI) / 4, (3 * PI) / 2, (7 * PI) / 4, 2 * PI};
-
 
 void speedCalc(float x1, float y1, float x2, float y2)
 {                // calculate required stepper speed based on distance the ball has the travel within an alotted time
@@ -324,25 +319,28 @@ void speedCalc(float x1, float y1, float x2, float y2)
     }
 }
 
-void moveStepsToPos(long x, long y)
+void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
 {
-    // stepper_X.setMaxSpeed(xSpd);
-    // stepper_Y.setMaxSpeed(ySpd);
-    // stepper_X.setAcceleration(xSpd * 50);
-    // stepper_Y.setAcceleration(ySpd * 50);
+    // Serial.print("X Speed: ");
+    // Serial.println(_xSpd);
+    // Serial.print("Y Speed: ");
+    // Serial.println(_ySpd);
+
+    // int x_acc = _xSpd * 50;
+    // int y_acc = _ySpd * 50;
+
+    // stepper_X.setMaxSpeed(_xSpd);
+    // stepper_Y.setMaxSpeed(_ySpd);
+    // stepper_X.setAcceleration(x_acc);
+    // stepper_Y.setAcceleration(y_acc);
     stepper_X .setMaxSpeed(15000);
     stepper_Y .setMaxSpeed(15000);
     stepper_X .setAcceleration(15000 * 50);
     stepper_Y .setAcceleration(15000 * 50);
 
-    Serial.print("X Speed: ");
-    Serial.println(xSpd);
-    Serial.print("Y Speed: ");
-    Serial.println(ySpd);
-
     digitalWrite(ENABLE_X, LOW);
     digitalWrite(ENABLE_Y, LOW);
-    
+
     positionMove[0] = x * xConvert;
     positionMove[1] = y * yConvert;
 

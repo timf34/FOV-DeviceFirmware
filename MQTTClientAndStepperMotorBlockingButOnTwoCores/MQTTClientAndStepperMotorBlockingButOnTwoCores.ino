@@ -217,8 +217,8 @@ void Core0Code(void *pvParameters)
         stepper_Y.setAcceleration(*ySpd * 15);
         digitalWrite(ENABLE_X, LOW);
         digitalWrite(ENABLE_Y, LOW);
-        positionMove[0] = *xReceived * xConvert;
-        positionMove[1] = *yReceived * yConvert;
+        // positionMove[0] = *xReceived * xConvert;
+        // positionMove[1] = *yReceived * yConvert;
 
         // // Deepcopy xReceived and yReceived to local variables (different memory addresses)
         int xReceivedLocal = *xReceived;
@@ -321,22 +321,23 @@ void speedCalc(float x1, float y1, float x2, float y2)
 
 void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
 {
-    // Serial.print("X Speed: ");
-    // Serial.println(_xSpd);
-    // Serial.print("Y Speed: ");
-    // Serial.println(_ySpd);
+    Serial.print("X Speed: ");
+    Serial.println(_xSpd);
+    Serial.print("Y Speed: ");
+    Serial.println(_ySpd);
 
-    // int x_acc = _xSpd * 50;
-    // int y_acc = _ySpd * 50;
+    int x_acc = _xSpd * 15;
+    int y_acc = _ySpd * 15;
 
+    // TODO: here is the current issue. I keep getting a memory error when I try to set the max speed 
     // stepper_X.setMaxSpeed(_xSpd);
     // stepper_Y.setMaxSpeed(_ySpd);
     // stepper_X.setAcceleration(x_acc);
     // stepper_Y.setAcceleration(y_acc);
-    stepper_X .setMaxSpeed(15000);
-    stepper_Y .setMaxSpeed(15000);
-    stepper_X .setAcceleration(15000 * 50);
-    stepper_Y .setAcceleration(15000 * 50);
+    stepper_X .setMaxSpeed(12000);
+    stepper_Y .setMaxSpeed(12000);
+    stepper_X .setAcceleration(12000 * 15);
+    stepper_Y .setAcceleration(12000 * 15);
 
     digitalWrite(ENABLE_X, LOW);
     digitalWrite(ENABLE_Y, LOW);

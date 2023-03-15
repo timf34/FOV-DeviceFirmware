@@ -214,15 +214,20 @@ void Core0Code(void *pvParameters)
         Serial.println("TaskCore1: y = " + String(*yReceived));
         Serial.println("TaskCore1: xSpd = " + String(*xSpd) + " ySpd = " + String(*ySpd));
 
+        stepper_X.setMaxSpeed(passedParams->param3);
+        stepper_Y.setMaxSpeed(passedParams->param4);
+        stepper_X.setAcceleration(passedParams->param3 * 15);
+        stepper_Y.setAcceleration(passedParams->param4 * 15);
+
         // stepper_X.setMaxSpeed(*xSpd);
         // stepper_Y.setMaxSpeed(*ySpd);
         // stepper_X.setAcceleration(*xSpd * 15);
         // stepper_Y.setAcceleration(*ySpd * 15);
 
-        stepper_X .setMaxSpeed(12000);
-        stepper_Y .setMaxSpeed(12000);
-        stepper_X .setAcceleration(12000 * 15);
-        stepper_Y .setAcceleration(12000 * 15); 
+        // stepper_X .setMaxSpeed(12000);
+        // stepper_Y .setMaxSpeed(12000);
+        // stepper_X .setAcceleration(12000 * 15);
+        // stepper_Y .setAcceleration(12000 * 15); 
 
         positionMove[0] = *xReceived * xConvert;
         positionMove[1] = *yReceived * yConvert;

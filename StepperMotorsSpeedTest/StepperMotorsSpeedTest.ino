@@ -114,7 +114,7 @@ void loop()
 }
 
 // Declare an array of speed_values from 10000 to 1000 at 1000 intervals
-int speed_values[12] = {10000, 9000,  5000, 4000, 3000, 2000, 1999, 1500, 1000};
+int speed_values[12] = {10000, 9000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1999, 1500, 1000};
 
 
 void loopMovement()

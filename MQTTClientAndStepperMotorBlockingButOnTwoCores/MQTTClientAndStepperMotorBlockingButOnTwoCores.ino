@@ -186,6 +186,9 @@ void Core0Code(void *pvParameters)
     hallSensorsSetup();
     homeSteppers();
 
+    digitalWrite(ENABLE_X, LOW);
+    digitalWrite(ENABLE_Y, LOW);
+
     for (;;)
     {
         myMutex.lock();
@@ -211,14 +214,18 @@ void Core0Code(void *pvParameters)
         Serial.println("TaskCore1: y = " + String(*yReceived));
         Serial.println("TaskCore1: xSpd = " + String(*xSpd) + " ySpd = " + String(*ySpd));
 
-        stepper_X.setMaxSpeed(*xSpd);
-        stepper_Y.setMaxSpeed(*ySpd);
-        stepper_X.setAcceleration(*xSpd * 15);
-        stepper_Y.setAcceleration(*ySpd * 15);
-        digitalWrite(ENABLE_X, LOW);
-        digitalWrite(ENABLE_Y, LOW);
-        // positionMove[0] = *xReceived * xConvert;
-        // positionMove[1] = *yReceived * yConvert;
+        // stepper_X.setMaxSpeed(*xSpd);
+        // stepper_Y.setMaxSpeed(*ySpd);
+        // stepper_X.setAcceleration(*xSpd * 15);
+        // stepper_Y.setAcceleration(*ySpd * 15);
+
+        stepper_X .setMaxSpeed(12000);
+        stepper_Y .setMaxSpeed(12000);
+        stepper_X .setAcceleration(12000 * 15);
+        stepper_Y .setAcceleration(12000 * 15); 
+
+        positionMove[0] = *xReceived * xConvert;
+        positionMove[1] = *yReceived * yConvert;
 
         // // Deepcopy xReceived and yReceived to local variables (different memory addresses)
         int xReceivedLocal = *xReceived;
@@ -228,7 +235,8 @@ void Core0Code(void *pvParameters)
 
         myMutex.unlock();
 
-        moveStepsToPos(xReceivedLocal, yReceivedLocal, xSpdLocal, ySpdLocal);
+        steppers.moveTo(positionMove);
+        steppers.runSpeedToPosition();
 
         // // Delay for some time
         // // vTaskDelay(100 / portTICK_PERIOD_MS);

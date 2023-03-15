@@ -114,7 +114,7 @@ void loop()
 }
 
 // Declare an array of speed_values from 10000 to 1000 at 1000 intervals
-int speed_values[10] = {10000, 9000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1000};
+int speed_values[10] = {10000, 9000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1500, 1000};
 
 
 void loopMovement()
@@ -125,7 +125,7 @@ void loopMovement()
     // vTaskDelay(1);
 
     // Loop through the speed_values array and pass them to moveStepsToPos call 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 11; i++)
     {
         Serial.println(speed_values[i]);
         moveStepsToPos(0, 0, speed_values[i], speed_values[i]);

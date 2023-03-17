@@ -141,7 +141,11 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     Serial.print("Y Coord: ");
     Serial.println(yReceived);
 
+    Serial.println("xSpd before speedCalc: " + String(xSpd));
+
     speedCalc(prevX, prevY, xReceived, yReceived);
+
+    Serial.println("xSpd after speedCalc: " + String(xSpd));
 
     // Assign the new values to the shared resource
     taskParams.param1 = xReceived;
@@ -162,8 +166,8 @@ void stepperSetup()
     digitalWrite(ENABLE_X, HIGH);
     digitalWrite(ENABLE_Y, HIGH);
     // Configure each stepper
-    stepper_X.setMaxSpeed(25000);
-    stepper_Y.setMaxSpeed(25000);
+    stepper_X.setMaxSpeed(15000);
+    stepper_Y.setMaxSpeed(15000);
     // Then give them to MultiStepper to manage
     steppers.addStepper(stepper_X);
     steppers.addStepper(stepper_Y);
@@ -199,9 +203,20 @@ void Core0Code(void *pvParameters)
         {
             *xSpd = 12000;
         }
+
+        if (*xSpd < 5000)
+        {
+            *xSpd = 5000;
+        }
+
         if (*ySpd > 12000)
         {
             *ySpd = 12000;
+        }
+
+        if (*ySpd < 5000)
+        {
+            *ySpd = 5000;
         }
 
         // Print the shared value
@@ -323,7 +338,7 @@ void speedCalc(float x1, float y1, float x2, float y2)
     {
         xSpd = 18000;
     }
-    if (xSpd < 3000 && xSpd > 0)
+    if (xSpd < 3000)
     {
         xSpd = 3000;
     }
@@ -332,7 +347,7 @@ void speedCalc(float x1, float y1, float x2, float y2)
     {
         ySpd = 18000;
     }
-    if (ySpd < 3000 && ySpd > 0)
+    if (ySpd < 3000)
     {
         ySpd = 3000;
     }

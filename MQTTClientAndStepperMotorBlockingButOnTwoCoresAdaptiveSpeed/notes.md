@@ -1,0 +1,1 @@
+Note that I should be able to remove some of the SpeedCalc code + generally clean up 

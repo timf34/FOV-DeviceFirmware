@@ -237,7 +237,7 @@ void Core0Code(void *pvParameters)
         // stepper_X .setMaxSpeed(12000);
         // stepper_Y .setMaxSpeed(12000);
         // stepper_X .setAcceleration(12000 * 15);
-        // stepper_Y .setAcceleration(12000 * 15); 
+        // stepper_Y .setAcceleration(12000 * 15);
 
         positionMove[0] = *xReceived * xConvert;
         positionMove[1] = *yReceived * yConvert;
@@ -363,15 +363,11 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
     int x_acc = _xSpd * 15;
     int y_acc = _ySpd * 15;
 
-    // TODO: here is the current issue. I keep getting a memory error when I try to set the max speed 
+    // TODO: here is the current issue. I keep getting a memory error when I try to set the max speed
     stepper_X.setMaxSpeed(_xSpd);
     stepper_Y.setMaxSpeed(_ySpd);
     stepper_X.setAcceleration(x_acc);
     stepper_Y.setAcceleration(y_acc);
-    // stepper_X .setMaxSpeed(1000);
-    // stepper_Y .setMaxSpeed(1000);
-    // stepper_X .setAcceleration(1000 * 15);
-    // stepper_Y .setAcceleration(1000 * 15);
 
     digitalWrite(ENABLE_X, LOW);
     digitalWrite(ENABLE_Y, LOW);
@@ -380,7 +376,15 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
     positionMove[1] = y * yConvert;
 
     steppers.moveTo(positionMove);
-    steppers.runSpeedToPosition();
+
+    // Commenting out working .runSpeedToPosition() to try out `.run()`
+    // steppers.runSpeedToPosition();
+
+    while (stepper_X.distanceToGo() != 0 || stepper_Y.distanceToGo() != 0)
+    {
+        steppers.run();
+        delayMicroseconds(1); // Using Microseconds works in allowing it to run fast!
+    }
 
     digitalWrite(ENABLE_X, HIGH);
     digitalWrite(ENABLE_Y, HIGH);
@@ -406,8 +410,7 @@ void homeSteppers()
     Serial.print("Stepper X is Homing . . . . . . . . . . . ");
 
     while (digitalRead(hall_X))
-    { // Make the Stepper move CCW until the switch is activated
-        // Serial.println(digitalRead(home_switch));
+    {                                       // Make the Stepper move CCW until the switch is activated
         stepper_X.moveTo(initial_homing_X); // Set the position to move to
         initial_homing_X--;                 // Decrease by 1 for next move if needed
         stepper_X.run();                    // Start moving the stepper

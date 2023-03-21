@@ -362,7 +362,7 @@ float a[9] = {0, PI / 4, PI / 2, (3 * PI) / 4, PI, (5 * PI) / 4, (3 * PI) / 2, (
 
 void speedCalc(float x1, float y1, float x2, float y2)
 {                // calculate required stepper speed based on distance the ball has the travel within an alotted time
-    float t = 2; // timeframe to complete movement
+    float t = 1; // timeframe to complete movement
 
     float dx = abs(x2 - x1); // distance to next coordinate
     float dy = abs(y2 - y1);
@@ -417,9 +417,10 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
     positionMove[0] = x * xConvert;
     positionMove[1] = y * yConvert;
 
+    // Working multi stepper method. Commenting out to try runToPosition
     steppers.moveTo(positionMove);
     steppers.runSpeedToPosition();
-
+    
     digitalWrite(ENABLE_X, HIGH);
     digitalWrite(ENABLE_Y, HIGH);
 }

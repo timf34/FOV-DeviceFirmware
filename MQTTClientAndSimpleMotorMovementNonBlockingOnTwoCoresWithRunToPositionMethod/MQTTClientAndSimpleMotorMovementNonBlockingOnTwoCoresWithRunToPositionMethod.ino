@@ -20,7 +20,7 @@
 #define AWS_IOT_SUBSCRIBE_TOPIC "dalymount_IRL/pub"
 
 WiFiClientSecure net = WiFiClientSecure();
-PubSubClient client(net);   
+PubSubClient client(net);
 
 #define ENABLE_Y 19
 #define DIR_Y 13
@@ -46,7 +46,7 @@ float ySpd = 8000;
 #define hall_X 36
 #define hall_Y 38
 
-# define use_cores true 
+#define use_cores true
 
 // Homing Sequence Variables
 long initial_homing_X = -1; // X Axis
@@ -162,7 +162,7 @@ void Core0Code(void *pvParameters)
     stepperSetup();
     hallSensorsSetup();
     homeSteppers();
-    
+
     for (;;)
     {
         // TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
@@ -170,13 +170,12 @@ void Core0Code(void *pvParameters)
         // TIMERG0.wdt_wprotect=0;
         loopMovement();
         vTaskDelay(100);
-
     }
 }
 
 void Core1Code(void *pvParameters)
 {
-    // For our AWS code:) 
+    // For our AWS code:)
     for (;;)
     {
         // TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
@@ -186,7 +185,6 @@ void Core1Code(void *pvParameters)
     }
 }
 
-
 void setup()
 {
     Serial.begin(9600);
@@ -194,13 +192,14 @@ void setup()
     stepper_X.setCurrentPosition(0);
     stepper_Y.setCurrentPosition(0);
 
-    // Print the available memory 
+    // Print the available memory
     Serial.print("Free memory: ");
     Serial.println(ESP.getFreeHeap());
 
     connectAWS();
 
-    if (use_cores == true){
+    if (use_cores == true)
+    {
 
         xTaskCreatePinnedToCore(
             Core0Code,   /* Task function. */
@@ -212,7 +211,7 @@ void setup()
             0            /* pin task to core 0 */
         );
 
-        // TODO: note this code doesn't execute if we set the priotity to 0... and if we set it to 1, the above code doesn't execute... Lets try switching them around once I'm back. 
+        // TODO: note this code doesn't execute if we set the priotity to 0... and if we set it to 1, the above code doesn't execute... Lets try switching them around once I'm back.
         xTaskCreatePinnedToCore(
             Core1Code,   /* Task function. */
             "Core1Code", /* name of task. */
@@ -222,7 +221,6 @@ void setup()
             NULL,        /* Task handle to keep track of created task */
             1            /* pin task to core 1 */
         );
-
     }
 }
 
@@ -273,10 +271,10 @@ void moveStepsToPos(long x, long y)
     // stepper_Y.setMaxSpeed(ySpd);
     // stepper_X.setAcceleration(xSpd * 50);
     // stepper_Y.setAcceleration(ySpd * 50);
-    stepper_X .setMaxSpeed(15000);
-    stepper_Y .setMaxSpeed(15000);
-    stepper_X .setAcceleration(15000 * 50);
-    stepper_Y .setAcceleration(15000 * 50);
+    stepper_X.setMaxSpeed(15000);
+    stepper_Y.setMaxSpeed(15000);
+    stepper_X.setAcceleration(15000 * 50);
+    stepper_Y.setAcceleration(15000 * 50);
 
     Serial.print("X Speed: ");
     Serial.println(xSpd);
@@ -289,16 +287,13 @@ void moveStepsToPos(long x, long y)
     positionMove[1] = y * yConvert;
     steppers.moveTo(positionMove);
 
-    // stepper_X.moveTo(positionMove[0]);
-    // stepper_Y.moveTo(positionMove[1]);
-
-
     // while (stepper_X.distanceToGo() != 0 || stepper_Y.distanceToGo() != 0)
     // {
     //     // stepper_X.run();
     //     // stepper_Y.run();
     //     steppers.run();
-    //     vTaskDelay(1);
+    //     // vTaskDelay(1);
+    //     delayMicroseconds(1);
     // }
 
     steppers.runSpeedToPosition();

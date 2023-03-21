@@ -121,6 +121,8 @@ void pwmMotor(void *pvParametersm)
     ledcWrite(PWM2_Ch, 0);
   }
 
+  vibeMode = 10; // Reset VibeMode
+
   vTaskDelete(NULL);
 }
 
@@ -208,12 +210,10 @@ void processInstruction(String instruction)
     Serial.print("Value 1: ");
     Serial.println(value1);
   }
-  if (instructionLength > 1)
-  {
-    value2 = instruction.substring(1, instructionLength);
-  }
 
   vibeMode = value1.toInt();
+
+  coreSetup();
 
 }
 

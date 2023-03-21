@@ -1,0 +1,1 @@
+Input 1, 2, 3, etc. into the Serial com port to get vibrations 

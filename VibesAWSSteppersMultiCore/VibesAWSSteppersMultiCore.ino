@@ -78,6 +78,9 @@ std::mutex myMutex; // create a mutex object
 int PWM1_DutyCycle = 0;
 int PWM2_DutyCycle = 0;
 
+long stepper_x_pos = 0;
+long stepper_y_pos = 0;
+
 int pass = 0;
 
 void pwmPinsSetup()
@@ -178,7 +181,17 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
 
     Serial.println("xSpd before speedCalc: " + String(xSpd));
 
-    speedCalc(prevX, prevY, xReceived, yReceived);
+    stepper_x_pos = stepper_X.currentPosition();
+    stepper_y_pos = stepper_Y.currentPosition();
+
+    // Convert the received values to our unites by dividing by the conversion factor
+    stepper_x_pos = stepper_x_pos / xConvert;
+    stepper_y_pos = stepper_y_pos / yConvert;
+
+    speedCalc(stepper_x_pos, stepper_y_pos, xReceived, yReceived);
+
+    // speedCalc(prevX, prevY, xReceived, yReceived);
+
 
     Serial.println("xSpd after speedCalc: " + String(xSpd));
 
@@ -289,12 +302,7 @@ void Core0Code(void *pvParameters)
 
         moveStepsToPos(xReceivedLocal, yReceivedLocal, xSpdLocal, ySpdLocal);
 
-        // steppers.moveTo(positionMove);
-        // steppers.runSpeedToPosition();
-
-        // // Delay for some time
-        // // vTaskDelay(100 / portTICK_PERIOD_MS);
-        vTaskDelay(100);
+        vTaskDelay(50);
     }
 }
 
@@ -362,7 +370,7 @@ float a[9] = {0, PI / 4, PI / 2, (3 * PI) / 4, PI, (5 * PI) / 4, (3 * PI) / 2, (
 
 void speedCalc(float x1, float y1, float x2, float y2)
 {                // calculate required stepper speed based on distance the ball has the travel within an alotted time
-    float t = 1; // timeframe to complete movement
+    float t = 0.2; // timeframe to complete movement
 
     float dx = abs(x2 - x1); // distance to next coordinate
     float dy = abs(y2 - y1);
@@ -536,4 +544,19 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 0);
         ledcWrite(PWM1_Ch, 0);
     }
+}
+
+void print_stepper_positions()
+{
+    stepper_x_pos = stepper_X.currentPosition();
+    stepper_y_pos = stepper_Y.currentPosition();
+
+    // Convert the received values to our unites by dividing by the conversion factor
+    stepper_x_pos = stepper_x_pos / xConvert;
+    stepper_y_pos = stepper_y_pos / yConvert;
+
+    Serial.print("X position: ");
+    Serial.println(stepper_x_pos);
+    Serial.print("Y position: ");
+    Serial.println(stepper_y_pos);
 }

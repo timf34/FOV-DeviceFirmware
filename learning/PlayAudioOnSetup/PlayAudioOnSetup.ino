@@ -1,4 +1,3 @@
-
 #include "Arduino.h"
 #include <Audio.h>
 #include "FS.h"
@@ -24,7 +23,7 @@ bool eof = false;
 
 void AudioSetup()
 {
-    SPIFFS.begin();
+    SPIFFS.begin(true);
     pinMode(mute, OUTPUT);
     digitalWrite(mute, HIGH);
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
@@ -58,9 +57,6 @@ void audio_eof_mp3(const char *info)
     }
     i++;
 }
-
-// Variables for main loop
-char inBuff[] = "----------------------------------------------------------------";
 
 void setup()
 {

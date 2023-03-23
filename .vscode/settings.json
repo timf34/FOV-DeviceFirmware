@@ -20,6 +20,17 @@
         "xstddef": "cpp",
         "xstring": "cpp",
         "xutility": "cpp",
-        "initializer_list": "cpp"
+        "initializer_list": "cpp",
+        "bit": "cpp",
+        "cstddef": "cpp",
+        "cstdint": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "cwchar": "cpp",
+        "iosfwd": "cpp",
+        "stdexcept": "cpp",
+        "xtr1common": "cpp"
     }
 }

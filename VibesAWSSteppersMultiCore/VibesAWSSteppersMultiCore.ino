@@ -388,8 +388,8 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
     Serial.print("Y Speed: ");
     Serial.println(_ySpd);
 
-    int x_acc = _xSpd * 15;
-    int y_acc = _ySpd * 15;
+    int x_acc = _xSpd * 5;
+    int y_acc = _ySpd * 5;
 
     // TODO: here is the current issue. I keep getting a memory error when I try to set the max speed
     stepper_X.setMaxSpeed(_xSpd);
@@ -411,7 +411,11 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
 
     while (stepper_X.distanceToGo() != 0 || stepper_Y.distanceToGo() != 0)
     {
-        steppers.run();
+        // Note: Acceleration doesn't work when using `steppers` as opposed to individual steppers.  
+        // steppers.run();
+
+        stepper_X.run();
+        stepper_Y.run();
         delayMicroseconds(1); // Using Microseconds works in allowing it to run fast!
     }
 

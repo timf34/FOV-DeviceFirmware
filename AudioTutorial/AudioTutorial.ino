@@ -89,11 +89,11 @@ int pass = 0;
 
 void AudioSetup()
 {
-    SPIFFS.begin();
+    SPIFFS.begin(true);
     pinMode(mute, OUTPUT);
     digitalWrite(mute, HIGH);
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    audio.setVolume(21); // 0...21
+    audio.setVolume(15); // 0...21
 }
 
 void pwmPinsSetup()
@@ -151,7 +151,7 @@ void audio_eof_mp3(const char *info)
         Serial.println("EOF2");
         audio.connecttoFS(SPIFFS, mp3_files[2].c_str());
         // Top vib
-        vTaskDelete(NULL);  // As we are running it on the core; needs to be deleted. 
+        // vTaskDelete(NULL);  // As we are running it on the core; needs to be deleted. 
 
     }
     i++;    
@@ -172,10 +172,10 @@ void setup()
 {
     Serial.begin(9600);
 
-    stepperSetup();
-    hallSensorsSetup();
-    homeSteppers();
-    pwmPinsSetup();
+    // stepperSetup();
+    // hallSensorsSetup();
+    // homeSteppers();
+    // pwmPinsSetup();
     AudioSetup();
 
     // xTaskCreatePinnedToCore(
@@ -193,6 +193,7 @@ void setup()
 
 void loop()
 {
+    audio.loop();
     Serial.println("Looping");
     delay(5000);
 }
@@ -281,4 +282,96 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 0);
         ledcWrite(PWM1_Ch, 0);
     }
+}
+
+void homeSteppers()
+{
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // X AXIS HOMING
+    ////////////////////////////////////////////////////////////////////////////////////////
+    float homingSpd = 15000.0;
+    Serial.println("Homing X Axis");
+    digitalWrite(ENABLE_X, LOW);
+    digitalWrite(ENABLE_Y, HIGH);
+    delay(5); // Wait for EasyDriver wake up
+
+    //  Set Max Speed and Acceleration of each Steppers at startup for homing
+    stepper_X.setMaxSpeed(homingSpd);     // Set Max Speed of Stepper (Slower to get better accuracy)
+    stepper_X.setAcceleration(homingSpd); // Set Acceleration of Stepper
+
+    // Start Homing procedure of Stepper Motor at startup
+
+    Serial.print("Stepper X is Homing . . . . . . . . . . . ");
+
+    while (digitalRead(hall_X))
+    {                                       // Make the Stepper move CCW until the switch is activated
+        stepper_X.moveTo(initial_homing_X); // Set the position to move to
+        initial_homing_X--;                 // Decrease by 1 for next move if needed
+        stepper_X.run();                    // Start moving the stepper
+        delay(1);
+    }
+
+    stepper_X.setCurrentPosition(0);      // Set the current position as zero for now
+    stepper_X.setMaxSpeed(homingSpd);     // Set Max Speed of Stepper (Slower to get better accuracy)
+    stepper_X.setAcceleration(homingSpd); // Set Acceleration of Stepper
+    initial_homing_X = -1;
+
+    while (!digitalRead(hall_X))
+    { // Make the Stepper move CW until the switch is deactivated
+        stepper_X.moveTo(initial_homing_X);
+        stepper_X.run();
+        initial_homing_X++;
+        delay(1);
+    }
+
+    stepper_X.setCurrentPosition(0);
+    Serial.println("Homing X Axis Completed");
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Y AXIS HOMING
+    ////////////////////////////////////////////////////////////////////////////////////////
+    Serial.println("Homing Y Axis");
+    digitalWrite(ENABLE_Y, LOW);
+    digitalWrite(ENABLE_X, HIGH);
+    delay(3); // Wait for EasyDriver wake up
+
+    //  Set Max Speed and Acceleration of each Steppers at startup for homing
+    stepper_Y.setMaxSpeed(homingSpd);     // Set Max Speed of Stepper (Slower to get better accuracy)
+    stepper_Y.setAcceleration(homingSpd); // Set Acceleration of Stepper
+
+    // Start Homing procedure of Stepper Motor at startup
+
+    Serial.print("Stepper Y is Homing . . . . . . . . . . . ");
+
+    while (digitalRead(hall_Y))
+    { // Make the Stepper move CCW until the switch is activated
+        // Serial.println(digitalRead(home_switch));
+        stepper_Y.moveTo(initial_homing_Y); // Set the position to move to
+        initial_homing_Y--;                 // Decrease by 1 for next move if needed
+        stepper_Y.run();                    // Start moving the stepper
+        delay(1);
+    }
+
+    stepper_Y.setCurrentPosition(0);      // Set the current position as zero for now
+    stepper_Y.setMaxSpeed(homingSpd);     // Set Max Speed of Stepper (Slower to get better accuracy)
+    stepper_Y.setAcceleration(homingSpd); // Set Acceleration of Stepper
+    initial_homing_Y = 1;
+
+    while (!digitalRead(hall_Y))
+    { // Make the Stepper move CW until the switch is deactivated
+        stepper_Y.moveTo(initial_homing_Y);
+        stepper_Y.run();
+        initial_homing_Y++;
+        delay(1);
+    }
+
+    stepper_Y.setCurrentPosition(0);
+    Serial.println("Homing Y Axis Completed");
+
+    // moveStepsToPos(1, 1);
+    stepper_X.setCurrentPosition(1);
+    stepper_Y.setCurrentPosition(1);
+
+    digitalWrite(ENABLE_X, HIGH);
+    digitalWrite(ENABLE_Y, HIGH);
 }

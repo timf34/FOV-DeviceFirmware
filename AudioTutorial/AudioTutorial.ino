@@ -85,6 +85,8 @@ int PWM2_DutyCycle = 0;
 long stepper_x_pos = 0;
 long stepper_y_pos = 0;
 
+int vibeMode = 0;
+
 int pass = 0;
 
 void AudioSetup()
@@ -137,7 +139,7 @@ void tutorial()
 }
 
 // void audio_eof_mp3(const char *info)
-void audio_eof_mp3()
+void audio_eof_mp3(const char *info)
 {
     Serial.print("eof_mp3     ");
     // Serial.println(info);
@@ -146,59 +148,84 @@ void audio_eof_mp3()
     {
         Serial.println("EOF1");
         audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
+        moveMotorsToGoalTask();
+        delay(1000);
     }
     if (i == 2)
     {
         Serial.println("EOF2");
         audio.connecttoFS(SPIFFS, mp3_files[2].c_str());
         // Top vib
-        vTaskDelete(NULL);  // As we are running it on the core; needs to be deleted. 
-
+        moveMotorsToCentreTask();
     }
-    i++;    
+    if (i == 3)
+    {
+        Serial.println("EOF3");
+        audio.connecttoFS(SPIFFS, mp3_files[3].c_str());
+        // Bottom vib
+    }
+    if (i == 4)
+    {
+        Serial.println("EOF4");
+        audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
+        pwmMotor(3);
+    }
+    if (i == 5)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
+        pwmMotor(2);
+    }
+    i++;
 }
 
-// void Core0Code(void *pvParameters)
-// {
-//     // Setup 
-//     for(;;)
-//     {
-//         Serial.println("Core 0");
-//         vTaskDelay(50);
-//     }
-// }
-
-void coreSetup(void *pvParameters)
+void moveMotorsToGoalTask()
 {
-    tutorial();
+    xTaskCreatePinnedToCore(moveMotorsToGoal, "moveMotorsToGoal", 10000, NULL, 2, NULL, 0);
+}
+
+void moveMotorsToGoal(void *pvParameters)
+{
+    Serial.println("before moveStepsToPos");
+    moveStepsToPos(0, 32, 5000, 5000);
+    vTaskDelete(NULL);
+}
+
+void moveMotorsToCentre(void *pvParameters)
+{
+    moveStepsToPos(52, 32, 8000, 8000);
+    vTaskDelete(NULL);
+}
+
+void moveMotorsToCentreTask()
+{
+    xTaskCreatePinnedToCore(moveMotorsToCentre, "moveMotorsToCentre", 10000, NULL, 1, NULL, 0);
 }
 
 void setup()
 {
     Serial.begin(9600);
 
-    // stepperSetup();
-    // hallSensorsSetup();
-    // homeSteppers();
-    // pwmPinsSetup();
+    stepperSetup();
+    hallSensorsSetup();
+    homeSteppers();
+    pwmPinsSetup();
 
     AudioSetup();
-    coreSetup();
+    // coreSetup();
     tutorial();
 }
 
 void loop()
 {
-    audio.loop();
-    xTaskCreatePinnedToCore(
-        audio_eof_mp3,           /* Task function. */
-        "audio_eof_mp3",         /* name of task. */
-        20000,               /* Stack size of task */
-        NULL /* parameter of the task */
-        1,                   /* priority of the task */
-        NULL,                /* Task handle to keep track of created task */
-        0                    /* pin task to core 0 */
-    );
+    // audio.loop();
+    Serial.println("hello");
+    delay(5000);
+
+    while (true)
+    {
+        audio.loop();
+    }
 }
 
 void speedCalc(float x1, float y1, float x2, float y2)
@@ -239,8 +266,8 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
     Serial.print("Y Speed: ");
     Serial.println(_ySpd);
 
-    int x_acc = _xSpd * 15;
-    int y_acc = _ySpd * 15;
+    int x_acc = 1000;
+    int y_acc = 1000;
 
     // TODO: here is the current issue. I keep getting a memory error when I try to set the max speed
     stepper_X.setMaxSpeed(_xSpd);
@@ -273,7 +300,7 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
 // vibration response depending on events
 void pwmMotor(int vibeMode)
 {
-    // VibeMode = 1 Pass
+    // VibeMode = 1  (OLD)
     if (vibeMode == 1)
     {
         ledcWrite(PWM2_Ch, 200);
@@ -285,6 +312,59 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 0);
         ledcWrite(PWM1_Ch, 0);
     }
+
+    // VibeMode = 2 Home Pass 
+    if (vibeMode == 2)
+    {
+        ledcWrite(PWM2_Ch, 210);
+        delay(30);
+        ledcWrite(PWM2_Ch, 70);
+        delay(120);
+        ledcWrite(PWM2_Ch, 0);
+        delay(65);
+        ledcWrite(PWM2_Ch, 210);
+        delay(30);
+        ledcWrite(PWM2_Ch, 70);
+        delay(120);
+        ledcWrite(PWM2_Ch, 0);
+    }
+    // VibeMode = 3 Home Receive
+    if (vibeMode == 3)
+    {
+        ledcWrite(PWM2_Ch, 210);
+        delay(30);
+        ledcWrite(PWM2_Ch, 70);
+        delay(150);
+        ledcWrite(PWM2_Ch, 0);
+    }
+
+    // VibeMode = 4 Away Pass
+    if (vibeMode == 4)
+    {
+        ledcWrite(PWM1_Ch, 210);
+        delay(20);
+        ledcWrite(PWM1_Ch, 50);
+        delay(120);
+        ledcWrite(PWM1_Ch, 0);
+        delay(65);
+        ledcWrite(PWM1_Ch, 210);
+        delay(20);
+        ledcWrite(PWM1_Ch, 50);
+        delay(120);
+        ledcWrite(PWM1_Ch, 0);
+    }
+
+    // VibeMode = 5 Away Receive
+    if (vibeMode == 5)
+    {
+        ledcWrite(PWM1_Ch, 210);
+        delay(20);
+        ledcWrite(PWM1_Ch, 50);
+        delay(120);
+        ledcWrite(PWM1_Ch, 0);
+    }
+
+    vibeMode = 99; // reset vibeMode
 }
 
 void homeSteppers()
@@ -377,4 +457,6 @@ void homeSteppers()
 
     digitalWrite(ENABLE_X, HIGH);
     digitalWrite(ENABLE_Y, HIGH);
+
+    moveStepsToPos(61, 32, 5000, 5000);
 }

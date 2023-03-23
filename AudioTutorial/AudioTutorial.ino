@@ -136,10 +136,11 @@ void tutorial()
     i++;
 }
 
-void audio_eof_mp3(const char *info)
+// void audio_eof_mp3(const char *info)
+void audio_eof_mp3()
 {
     Serial.print("eof_mp3     ");
-    Serial.println(info);
+    // Serial.println(info);
     static int i = 1;
     if (i == 1)
     {
@@ -151,11 +152,10 @@ void audio_eof_mp3(const char *info)
         Serial.println("EOF2");
         audio.connecttoFS(SPIFFS, mp3_files[2].c_str());
         // Top vib
-        // vTaskDelete(NULL);  // As we are running it on the core; needs to be deleted. 
+        vTaskDelete(NULL);  // As we are running it on the core; needs to be deleted. 
 
     }
     i++;    
-
 }
 
 // void Core0Code(void *pvParameters)
@@ -168,6 +168,11 @@ void audio_eof_mp3(const char *info)
 //     }
 // }
 
+void coreSetup(void *pvParameters)
+{
+    tutorial();
+}
+
 void setup()
 {
     Serial.begin(9600);
@@ -176,26 +181,24 @@ void setup()
     // hallSensorsSetup();
     // homeSteppers();
     // pwmPinsSetup();
+
     AudioSetup();
-
-    // xTaskCreatePinnedToCore(
-    //     audio_eof_mp3,           /* Task function. */
-    //     "audio_eof_mp3",         /* name of task. */
-    //     20000,               /* Stack size of task */
-    //     NULL /* parameter of the task */
-    //     1,                   /* priority of the task */
-    //     NULL,                /* Task handle to keep track of created task */
-    //     0                    /* pin task to core 0 */
-    // );
-
+    coreSetup();
     tutorial();
 }
 
 void loop()
 {
     audio.loop();
-    Serial.println("Looping");
-    delay(5000);
+    xTaskCreatePinnedToCore(
+        audio_eof_mp3,           /* Task function. */
+        "audio_eof_mp3",         /* name of task. */
+        20000,               /* Stack size of task */
+        NULL /* parameter of the task */
+        1,                   /* priority of the task */
+        NULL,                /* Task handle to keep track of created task */
+        0                    /* pin task to core 0 */
+    );
 }
 
 void speedCalc(float x1, float y1, float x2, float y2)

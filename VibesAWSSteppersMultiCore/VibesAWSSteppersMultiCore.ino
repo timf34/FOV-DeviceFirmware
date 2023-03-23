@@ -451,14 +451,6 @@ void homeSteppers()
     stepper_X.setAcceleration(homingSpd); // Set Acceleration of Stepper
     initial_homing_X = -1;
 
-    while (!digitalRead(hall_X))
-    { // Make the Stepper move CW until the switch is deactivated
-        stepper_X.moveTo(initial_homing_X);
-        stepper_X.run();
-        initial_homing_X++;
-        delay(1);
-    }
-
     stepper_X.setCurrentPosition(0);
     Serial.println("Homing X Axis Completed");
 
@@ -491,14 +483,6 @@ void homeSteppers()
     stepper_Y.setMaxSpeed(homingSpd);     // Set Max Speed of Stepper (Slower to get better accuracy)
     stepper_Y.setAcceleration(homingSpd); // Set Acceleration of Stepper
     initial_homing_Y = 1;
-
-    while (!digitalRead(hall_Y))
-    { // Make the Stepper move CW until the switch is deactivated
-        stepper_Y.moveTo(initial_homing_Y);
-        stepper_Y.run();
-        initial_homing_Y++;
-        delay(1);
-    }
 
     stepper_Y.setCurrentPosition(0);
     Serial.println("Homing Y Axis Completed");

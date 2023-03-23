@@ -190,9 +190,6 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
 
     speedCalc(stepper_x_pos, stepper_y_pos, xReceived, yReceived);
 
-    // speedCalc(prevX, prevY, xReceived, yReceived);
-
-
     Serial.println("xSpd after speedCalc: " + String(xSpd));
 
     // Assign the new values to the shared resource
@@ -274,21 +271,6 @@ void Core0Code(void *pvParameters)
         Serial.println("TaskCore1: y = " + String(*yReceived));
         Serial.println("TaskCore1: xSpd = " + String(*xSpd) + " ySpd = " + String(*ySpd));
 
-        // stepper_X.setMaxSpeed(passedParams->param3);
-        // stepper_Y.setMaxSpeed(passedParams->param4);
-        // stepper_X.setAcceleration(passedParams->param3 * 15);
-        // stepper_Y.setAcceleration(passedParams->param4 * 15);
-
-        // stepper_X.setMaxSpeed(*xSpd);
-        // stepper_Y.setMaxSpeed(*ySpd);
-        // stepper_X.setAcceleration(*xSpd * 15);
-        // stepper_Y.setAcceleration(*ySpd * 15);
-
-        // stepper_X .setMaxSpeed(12000);
-        // stepper_Y .setMaxSpeed(12000);
-        // stepper_X .setAcceleration(12000 * 15);
-        // stepper_Y .setAcceleration(12000 * 15);
-
         positionMove[0] = *xReceived * xConvert;
         positionMove[1] = *yReceived * yConvert;
 
@@ -369,7 +351,7 @@ float delta = PI / 100; // Increment
 float a[9] = {0, PI / 4, PI / 2, (3 * PI) / 4, PI, (5 * PI) / 4, (3 * PI) / 2, (7 * PI) / 4, 2 * PI};
 
 void speedCalc(float x1, float y1, float x2, float y2)
-{                // calculate required stepper speed based on distance the ball has the travel within an alotted time
+{                  // calculate required stepper speed based on distance the ball has the travel within an alotted time
     float t = 0.2; // timeframe to complete movement
 
     float dx = abs(x2 - x1); // distance to next coordinate

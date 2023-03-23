@@ -11,7 +11,7 @@ const int mute = 0;
 Audio audio;
 
 const int numberElements = 4;
-String mp3_files[numberElements] = {"FovTut2.mp3", "FovTut6thisIsItForAwayTeam.mp3", "FovTut8ThisIsItForHomeTeam.mp3", "FovTut12.mp3"};
+String mp3_files[numberElements] = {"FovTut6thisIsItForAwayTeam.mp3", "FovTut2.mp3", "FovTut8ThisIsItForHomeTeam.mp3", "FovTut12.mp3"};
 
 int i = 0;
 const char *c;
@@ -29,7 +29,6 @@ void AudioSetup()
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     audio.setVolume(17); // 0...21
 }
-/*******************************************************************************************************************************************************************************************************************************************************************************/
 
 void tutorial()
 {
@@ -69,6 +68,8 @@ void setup()
 void loop()
 {
     audio.loop();
+
+    // Note: ensure there are no `delay()` calls in this loop with audio.loop()!
 
     // if (AudioOn == true)
     // {

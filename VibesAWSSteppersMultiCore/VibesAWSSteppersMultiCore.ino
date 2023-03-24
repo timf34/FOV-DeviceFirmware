@@ -185,6 +185,14 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     Serial.println(xReceived);
     Serial.print("Y Coord: ");
     Serial.println(yReceived);
+    Serial.print("Possession: ");
+    Serial.println(possession);
+    Serial.print("Pass: ");
+    Serial.println(pass);
+    Serial.print("Receive: ");
+    Serial.println(receive);
+    Serial.print("Goal: ");
+    Serial.println(goal);
 
     // Home 
     if (possession == 0)
@@ -193,9 +201,13 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 2;
         }
-        if (receive == 1)
+        else if (receive == 1)
         {
             vibeMode = 3;
+        }
+        else
+        {
+            vibeMode = 0;
         }
     }
     // Away
@@ -205,13 +217,17 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 4;
         }
-        if (receive == 1)
+        else if (receive == 1)
         {
             vibeMode = 5;
         }
+        else
+        {
+            vibeMode = 0;
+        }
     }
 
-    Serial.println("xSpd before speedCalc: " + String(xSpd));
+    // Serial.println("xSpd before speedCalc: " + String(xSpd));
 
     stepper_x_pos = stepper_X.currentPosition();
     stepper_y_pos = stepper_Y.currentPosition();
@@ -222,7 +238,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
 
     speedCalc(stepper_x_pos, stepper_y_pos, xReceived, yReceived);
 
-    Serial.println("xSpd after speedCalc: " + String(xSpd));
+    // Serial.println("xSpd after speedCalc: " + String(xSpd));
 
     // Assign the new values to the shared resource
     taskParams.param1 = xReceived;
@@ -234,6 +250,9 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
 
     prevX = xReceived;
     prevY = yReceived;
+
+    Serial.print("vibeMode: ");
+    Serial.println(vibeMode);
 
     pwmMotor(vibeMode); // Where pass is equivalent to vibeMode
 }
@@ -299,9 +318,9 @@ void Core0Code(void *pvParameters)
         }
 
         // Print the shared value
-        Serial.println("TaskCore1: x = " + String(*xReceived));
-        Serial.println("TaskCore1: y = " + String(*yReceived));
-        Serial.println("TaskCore1: xSpd = " + String(*xSpd) + " ySpd = " + String(*ySpd));
+        // Serial.println("TaskCore1: x = " + String(*xReceived));
+        // Serial.println("TaskCore1: y = " + String(*yReceived));
+        // Serial.println("TaskCore1: xSpd = " + String(*xSpd) + " ySpd = " + String(*ySpd));
 
         positionMove[0] = *xReceived * xConvert;
         positionMove[1] = *yReceived * yConvert;
@@ -371,8 +390,8 @@ void setup()
 
 void loop()
 {
-    Serial.println("Looping");
-    Serial.println("Client state: " + String(client.state()));
+    // Serial.println("Looping");
+    // Serial.println("Client state: " + String(client.state()));
     delay(5000);
 }
 

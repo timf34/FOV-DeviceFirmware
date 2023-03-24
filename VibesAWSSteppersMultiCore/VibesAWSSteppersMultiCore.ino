@@ -81,7 +81,12 @@ int PWM2_DutyCycle = 0;
 long stepper_x_pos = 0;
 long stepper_y_pos = 0;
 
+int vibeMode = 10;
+int possession = 66;
 int pass = 0;
+int receive = 0; 
+int goal = 0;  
+
 
 void pwmPinsSetup()
 {
@@ -170,14 +175,41 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     xReceived = doc["X"];
     yReceived = doc["Y"];
 
+
+    possession = doc["P"];
     pass = doc["Pa"];
+    receive = doc["R"];
+    goal = doc["G"];
 
     Serial.print("X Coord: ");
     Serial.println(xReceived);
     Serial.print("Y Coord: ");
     Serial.println(yReceived);
-    Serial.print("Pass: ");
-    Serial.println(pass);
+
+    // Home 
+    if (possession == 0)
+    {
+        if (pass == 1)
+        {
+            vibeMode = 2;
+        }
+        if (receive == 1)
+        {
+            vibeMode = 3;
+        }
+    }
+    // Away
+    else if (possession == 1)
+    {
+        if (pass == 1)
+        {
+            vibeMode = 4;
+        }
+        if (receive == 1)
+        {
+            vibeMode = 5;
+        }
+    }
 
     Serial.println("xSpd before speedCalc: " + String(xSpd));
 
@@ -203,7 +235,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     prevX = xReceived;
     prevY = yReceived;
 
-    pwmMotor(pass); // Where pass is equivalent to vibeMode
+    pwmMotor(vibeMode); // Where pass is equivalent to vibeMode
 }
 
 void stepperSetup()
@@ -500,9 +532,10 @@ void homeSteppers()
 }
 
 // vibration response depending on events
+// vibration response depending on events
 void pwmMotor(int vibeMode)
 {
-    // VibeMode = 1 Pass
+    // VibeMode = 1  (OLD)
     if (vibeMode == 1)
     {
         ledcWrite(PWM2_Ch, 200);
@@ -514,7 +547,63 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 0);
         ledcWrite(PWM1_Ch, 0);
     }
+
+    // VibeMode = 2 Home Pass 
+    if (vibeMode == 2)
+    {
+        ledcWrite(PWM2_Ch, 210);
+        delay(30);
+        ledcWrite(PWM2_Ch, 70);
+        delay(120);
+        ledcWrite(PWM2_Ch, 0);
+        delay(65);
+        ledcWrite(PWM2_Ch, 210);
+        delay(30);
+        ledcWrite(PWM2_Ch, 70);
+        delay(120);
+        ledcWrite(PWM2_Ch, 0);
+    }
+    // VibeMode = 3 Home Receive
+    if (vibeMode == 3)
+    {
+        ledcWrite(PWM2_Ch, 210);
+        delay(30);
+        ledcWrite(PWM2_Ch, 70);
+        delay(150);
+        ledcWrite(PWM2_Ch, 0);
+    }
+
+    // VibeMode = 4 Away Pass
+    if (vibeMode == 4)
+    {
+        ledcWrite(PWM1_Ch, 210);
+        delay(20);
+        ledcWrite(PWM1_Ch, 50);
+        delay(120);
+        ledcWrite(PWM1_Ch, 0);
+        delay(65);
+        ledcWrite(PWM1_Ch, 210);
+        delay(20);
+        ledcWrite(PWM1_Ch, 50);
+        delay(120);
+        ledcWrite(PWM1_Ch, 0);
+    }
+
+    // VibeMode = 5 Away Receive
+    if (vibeMode == 5)
+    {
+        ledcWrite(PWM1_Ch, 210);
+        delay(20);
+        ledcWrite(PWM1_Ch, 50);
+        delay(120);
+        ledcWrite(PWM1_Ch, 0);
+    }
+
+    // TODO: need a "goal" vibeMode buzz 
+
+    vibeMode = 99; // reset vibeMode
 }
+
 
 void print_stepper_positions()
 {

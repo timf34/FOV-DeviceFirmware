@@ -474,12 +474,30 @@ void homeSteppers()
 
     Serial.print("Stepper X is Homing . . . . . . . . . . . ");
 
+    // Start a timer to check if the homing is taking too long
+    unsigned long homingTimer = millis();
+
+
+    // while (digitalRead(hall_X))
+    // {                                       // Make the Stepper move CCW until the switch is activated
+    //     stepper_X.moveTo(initial_homing_X); // Set the position to move to
+    //     initial_homing_X--;                 // Decrease by 1 for next move if needed
+    //     stepper_X.run();                    // Start moving the stepper
+    //     delay(1);
+    // }
+    // Same as above while loop, however we also check if its taking longer than 30 seconds, and break if so 
+
     while (digitalRead(hall_X))
     {                                       // Make the Stepper move CCW until the switch is activated
         stepper_X.moveTo(initial_homing_X); // Set the position to move to
         initial_homing_X--;                 // Decrease by 1 for next move if needed
         stepper_X.run();                    // Start moving the stepper
         delay(1);
+        if (millis() - homingTimer > 30000)
+        {
+            Serial.println("Homing X Axis Timed Out");
+            break;
+        }
     }
 
     stepper_X.setCurrentPosition(0);      // Set the current position as zero for now
@@ -506,14 +524,32 @@ void homeSteppers()
 
     Serial.print("Stepper Y is Homing . . . . . . . . . . . ");
 
+    // Start a timer to check if the homing is taking too long
+    homingTimer = millis();
+
+    // while (digitalRead(hall_Y))
+    // { // Make the Stepper move CCW until the switch is activated
+    //     stepper_Y.moveTo(initial_homing_Y); // Set the position to move to
+    //     initial_homing_Y--;                 // Decrease by 1 for next move if needed
+    //     stepper_Y.run();                    // Start moving the stepper
+    //     delay(1);
+    // }
+
+    // Same as above while loop, however we also check if its taking longer than 30 seconds, and break if so
+
     while (digitalRead(hall_Y))
     { // Make the Stepper move CCW until the switch is activated
-        // Serial.println(digitalRead(home_switch));
         stepper_Y.moveTo(initial_homing_Y); // Set the position to move to
         initial_homing_Y--;                 // Decrease by 1 for next move if needed
         stepper_Y.run();                    // Start moving the stepper
         delay(1);
+        if (millis() - homingTimer > 30000)
+        {
+            Serial.println("Homing Y Axis Timed Out");
+            break;
+        }
     }
+
 
     stepper_Y.setCurrentPosition(0);      // Set the current position as zero for now
     stepper_Y.setMaxSpeed(homingSpd);     // Set Max Speed of Stepper (Slower to get better accuracy)

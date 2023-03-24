@@ -244,8 +244,8 @@ void loopMovement()
 }
 
 void speedCalc(float x1, float y1, float x2, float y2)
-{                // calculate required stepper speed based on distance the ball has the travel within an alotted time
-    float t = 2; // timeframe to complete movement
+{                  // calculate required stepper speed based on distance the ball has the travel within an alotted time
+    float t = 0.2; // timeframe to complete movement
 
     float dx = abs(x2 - x1); // distance to next coordinate
     float dy = abs(y2 - y1);
@@ -259,9 +259,18 @@ void speedCalc(float x1, float y1, float x2, float y2)
     {
         xSpd = 18000;
     }
+    if (xSpd < 3000)
+    {
+        xSpd = 3000;
+    }
+
     if (ySpd > 18000)
     {
         ySpd = 18000;
+    }
+    if (ySpd < 3000)
+    {
+        ySpd = 3000;
     }
 }
 

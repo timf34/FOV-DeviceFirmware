@@ -239,8 +239,9 @@ float delta = PI / 100; // Increment
 float a[9] = {0, PI / 4, PI / 2, (3 * PI) / 4, PI, (5 * PI) / 4, (3 * PI) / 2, (7 * PI) / 4, 2 * PI};
 void loopMovement()
 {
-    moveStepsToPos(0, 0);
-    moveStepsToPos(48, 26);
+    // Note: speed is hardcoded here too! 
+    moveStepsToPos(0, 0, 5000, 5000);
+    moveStepsToPos(48, 26, 8000, 8000);
 }
 
 void speedCalc(float x1, float y1, float x2, float y2)
@@ -274,37 +275,45 @@ void speedCalc(float x1, float y1, float x2, float y2)
     }
 }
 
-void moveStepsToPos(long x, long y)
+void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
 {
-    // stepper_X.setMaxSpeed(xSpd);
-    // stepper_Y.setMaxSpeed(ySpd);
-    // stepper_X.setAcceleration(xSpd * 50);
-    // stepper_Y.setAcceleration(ySpd * 50);
-    stepper_X.setMaxSpeed(15000);
-    stepper_Y.setMaxSpeed(15000);
-    stepper_X.setAcceleration(15000 * 50);
-    stepper_Y.setAcceleration(15000 * 50);
-
     Serial.print("X Speed: ");
-    Serial.println(xSpd);
+    Serial.println(_xSpd);
     Serial.print("Y Speed: ");
-    Serial.println(ySpd);
+    Serial.println(_ySpd);
+
+    int x_acc = _xSpd * 5;
+    int y_acc = _ySpd * 5;
+
+    // TODO: here is the current issue. I keep getting a memory error when I try to set the max speed
+    stepper_X.setMaxSpeed(_xSpd);
+    stepper_Y.setMaxSpeed(_ySpd);
+    stepper_X.setAcceleration(x_acc);
+    stepper_Y.setAcceleration(y_acc);
 
     digitalWrite(ENABLE_X, LOW);
-    digitalWrite(ENABLE_Y, HIGH);
+    digitalWrite(ENABLE_Y, LOW);
+
     positionMove[0] = x * xConvert;
     positionMove[1] = y * yConvert;
+
+    // Working multi stepper method. Commenting out to try runToPosition
     steppers.moveTo(positionMove);
+
+    // Commenting out to try .run()
+    // steppers.runSpeedToPosition();
 
     while (stepper_X.distanceToGo() != 0 || stepper_Y.distanceToGo() != 0)
     {
-        steppers.run();
+        // Note: Acceleration doesn't work when using `steppers` as opposed to individual steppers.
+        // steppers.run();
+
+        stepper_X.run();
+        stepper_Y.run();
         delayMicroseconds(1); // Using Microseconds works in allowing it to run fast!
     }
 
-    // steppers.runSpeedToPosition();
-
-    digitalWrite(ENABLE_X, LOW);
+    digitalWrite(ENABLE_X, HIGH);
     digitalWrite(ENABLE_Y, HIGH);
 }
 

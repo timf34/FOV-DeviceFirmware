@@ -10,8 +10,8 @@
 const int mute = 0;
 Audio audio;
 
-const int numberElements = 4;
-String mp3_files[numberElements] = {"FovTut6thisIsItForAwayTeam.mp3", "FovTut2.mp3", "FovTut8ThisIsItForHomeTeam.mp3", "FovTut12.mp3"};
+const int numberElements = 8;
+String mp3_files[numberElements] = {"FovTut6thisIsItForAwayTeam.mp3", "FovTut8ThisIsItForHomeTeam.mp3", "0.mp3", "yaa.mp3", "FovTut2new.mp3", "FovTut12.mp3"};
 
 int i = 0;
 const char *c;
@@ -20,6 +20,21 @@ int period = 30;
 unsigned long time_now = 0;
 bool AudioOn = true;
 bool eof = false;
+
+void listFilesInSPIFFS()
+{
+    File root = SPIFFS.open("/");
+    File file = root.openNextFile();
+
+    while (file)
+    {
+        Serial.print("File: ");
+        Serial.print(file.name());
+        Serial.print(" - Size: ");
+        Serial.println(file.size());
+        file = root.openNextFile();
+    }
+}
 
 void AudioSetup()
 {
@@ -61,6 +76,15 @@ void setup()
 {
     Serial.begin(9600);
     Serial.println("before audio setup");
+
+    if (!SPIFFS.begin(true)) {
+      Serial.println("SPIFFS initialization failed");
+      return;
+    }
+    Serial.println("SPIFFS initialization successful");
+
+    listFilesInSPIFFS();
+
     AudioSetup();
     tutorial();
 }

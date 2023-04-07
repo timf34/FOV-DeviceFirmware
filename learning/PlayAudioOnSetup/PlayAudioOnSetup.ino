@@ -1,3 +1,5 @@
+// Note: Remeber to click the _ESP32 Sketch Data Upload_ button when using new audio files!!!
+
 #include "Arduino.h"
 #include <Audio.h>
 #include "FS.h"

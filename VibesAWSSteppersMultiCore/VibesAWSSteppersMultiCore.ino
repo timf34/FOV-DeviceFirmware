@@ -207,32 +207,29 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
 
     possession = doc["P"];
     pass = doc["Pa"];
-    receive = doc["R"];
     goal = doc["G"];
 
-    Serial.print("X Coord: ");
-    Serial.println(xReceived);
-    Serial.print("Y Coord: ");
-    Serial.println(yReceived);
-    Serial.print("Possession: ");
-    Serial.println(possession);
-    Serial.print("Pass: ");
-    Serial.println(pass);
-    Serial.print("Receive: ");
-    Serial.println(receive);
-    Serial.print("Goal: ");
-    Serial.println(goal);
+    // Serial.print("X Coord: ");
+    // Serial.println(xReceived);
+    // Serial.print("Y Coord: ");
+    // Serial.println(yReceived);
+    // Serial.print("Possession: ");
+    // Serial.println(possession);
+    // Serial.print("Pass: ");
+    // Serial.println(pass);
+    // Serial.print("Goal: ");
+    // Serial.println(goal);
 
-    // away
+    // home
     if (possession == 0)
     {
         if (pass == 1)
         {
             vibeMode = 2;
         }
-        else if (receive == 1)
+        else if (goal == 1)
         {
-            vibeMode = 3;
+            vibeMode = 1;
         }
         else
         {
@@ -246,19 +243,16 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 4;
         }
-        else if (receive == 1)
+        else if (goal == 1)
         {
-            vibeMode = 5;
+            vibeMode = 1;
         }
         else
         {
             vibeMode = 0;
         }
     }
-    else if (goal == 1)
-    {
-        vibeMode = 1;
-    }
+
     else
     {
         vibeMode = 0;
@@ -607,7 +601,6 @@ void homeSteppers()
 void pwmMotor(int vibeMode)
 {
 
- 
     // VibeMode = 1  goal
     if (vibeMode == 1)
     {
@@ -615,7 +608,7 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 70);
         delay(2000);
         ledcWrite(PWM1_Ch, 0);
- ledcWrite(PWM2_Ch, 0);
+        ledcWrite(PWM2_Ch, 0);
     }
 
     // VibeMode = 2 away Pass

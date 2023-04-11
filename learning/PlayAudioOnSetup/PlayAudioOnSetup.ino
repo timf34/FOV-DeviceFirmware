@@ -12,8 +12,22 @@
 const int mute = 0;
 Audio audio;
 
-const int numberElements = 8;
-String mp3_files[numberElements] = {"FovTut6thisIsItForAwayTeam.mp3", "FovTut8ThisIsItForHomeTeam.mp3", "0.mp3", "yaa.mp3", "FovTut2new.mp3", "FovTut12.mp3"};
+const int numberElements = 18   ;
+String mp3_files[numberElements] =
+    {
+        "FovTut1.mp3",
+        "FovTut2new.mp3",
+        "FovTut3.mp3",
+        "FovTut4New.mp3",
+        "FovTut5New.mp3",
+        "FovTut6.mp3",
+        "FovTut7.mp3",
+        "FovTut8.mp3",
+        "FovTut9.mp3",
+        "FovTut10.mp3",
+        "FovTut11.mp3",
+        "ThisIsItForAwayTeam.mp3",
+        "FovTut8ThisIsItForHomeTeam.mp3"};
 
 int i = 0;
 const char *c;
@@ -69,6 +83,66 @@ void audio_eof_mp3(const char *info)
     {
         Serial.println("EOF2");
         audio.connecttoFS(SPIFFS, mp3_files[2].c_str());
+        // Top vib
+    }
+    if (i == 3)
+    {
+        Serial.println("EOF3");
+        audio.connecttoFS(SPIFFS, mp3_files[3].c_str());
+        // Top vib
+    }
+    if (i == 4)
+    {
+        Serial.println("EOF4");
+        audio.connecttoFS(SPIFFS, mp3_files[4].c_str());
+        // Top vib
+    }
+    if (i == 5)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[5].c_str());
+        // Top vib
+    }
+    if (i == 6)
+    {
+        Serial.println("EOF6");
+        audio.connecttoFS(SPIFFS, mp3_files[6].c_str());
+        // Top vib
+    }
+    if (i == 7)
+    {
+        Serial.println("EOF7");
+        audio.connecttoFS(SPIFFS, mp3_files[7].c_str());
+        // Top vib
+    }    
+    if (i == 8)
+    {
+        Serial.println("EOF8");
+        audio.connecttoFS(SPIFFS, mp3_files[8].c_str());
+        // Top vib
+    }
+    if (i == 9)
+    {
+        Serial.println("EOF9");
+        audio.connecttoFS(SPIFFS, mp3_files[9].c_str());
+        // Top vib
+    }
+    if (i == 10)
+    {
+        Serial.println("EOF10");
+        audio.connecttoFS(SPIFFS, mp3_files[10].c_str());
+        // Top vib
+    }
+    if (i == 11)
+    {
+        Serial.println("EOF11");
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        // Top vib
+    }   
+    if (i == 12)
+    {
+        Serial.println("EOF12");
+        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
         // Top vib
     }
     i++;

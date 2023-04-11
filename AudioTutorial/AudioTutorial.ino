@@ -20,18 +20,8 @@ Audio audio;
 const int numberElements = 18   ;
 String mp3_files[numberElements] =
     {
-        // "FovTut6thisIsItForAwayTeam.mp3",
-        // "FovTut8ThisIsItForHomeTeam.mp3",
-        // "FovTut6thisIsItForAwayTeam.mp3",
-        // "FovTut8ThisIsItForHomeTeam.mp3",
-        // "FovTut6thisIsItForAwayTeam.mp3",
-        // "FovTut8ThisIsItForHomeTeam.mp3",
-        // "FovTut6thisIsItForAwayTeam.mp3",
-        // "FovTut8ThisIsItForHomeTeam.mp3"
-        "ThisIsItForAwayTeam.mp3",
-        "ThisIsItForAwayTeam.mp3",
-        "ThisIsItForAwayTeam.mp3",
-        // "FovTut2new.mp3",
+        "FovTut1.mp3",
+        "FovTut2new.mp3",
         "FovTut3.mp3",
         "FovTut4New.mp3",
         "FovTut5New.mp3",
@@ -42,7 +32,7 @@ String mp3_files[numberElements] =
         "FovTut10.mp3",
         "FovTut11.mp3",
         "ThisIsItForAwayTeam.mp3",
-        "FovTut8ThisIsItForHomeTeam.mp3"};
+        "ThisIsItForHomeTeam.mp3"};
 
 int i = 0;
 const char *c;
@@ -207,79 +197,79 @@ void audio_eof_mp3(const char *info)
         Serial.println("EOF3");
         audio.connecttoFS(SPIFFS, mp3_files[3].c_str());
         // Top vib
-        // pwmMotor(4);
+        pwmMotor(4);
     }
     if (i == 4)
     {
         Serial.println("EOF4");
         audio.connecttoFS(SPIFFS, mp3_files[4].c_str());
         // Bottom vib
-        // pwmMotor(3);
+        pwmMotor(3);
     }
     if (i == 5)
     {
         Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[5].c_str());
         pwmMotor(5);
     }
     if (i == 6)
     {
         Serial.println("EOF6");
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[6].c_str());
         pwmMotor(2);
     }
     if (i == 7)
     {
         Serial.println("EOF7");
-        audio.connecttoFS(SPIFFS, mp3_files[5].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[7].c_str());
         pwmMotor(2);
     }
     if (i == 8)
     {
         Serial.println("EOF8");
-        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[8].c_str());
         pwmMotor(2);
     }
     if (i == 9)
     {
         Serial.println("EOF9");
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[9].c_str());
         pwmMotor(2);
     }
     if (i == 10)
     {
         Serial.println("EOF10");
-        audio.connecttoFS(SPIFFS, mp3_files[6].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[10].c_str());
         pwmMotor(2);
     }
     if (i == 11)
     {
         Serial.println("EOF11");
-        audio.connecttoFS(SPIFFS, mp3_files[7].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
         pwmMotor(2);
     }
     if (i == 12)
     {
         Serial.println("EOF12");
-        audio.connecttoFS(SPIFFS, mp3_files[8].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
         pwmMotor(2);
     }
     if (i == 13)
     {
         Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[9].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[13].c_str());
         pwmMotor(2);
     }
     if (i == 14)
     {
         Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[10].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[14].c_str());
         pwmMotor(2);
     }
     if (i == 15)
     {
         Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[15].c_str());
         pwmMotor(2);
     }
 
@@ -317,7 +307,7 @@ void setup()
 
     stepperSetup();
     hallSensorsSetup();
-    homeSteppers(); // Commented just to speed up testing.
+    homeSteppers(); 
     pwmPinsSetup();
     listFilesInSPIFFS();
 
@@ -566,10 +556,13 @@ void homeSteppers()
     stepper_Y.setCurrentPosition(0);
     Serial.println("Homing Y Axis Completed");
 
-    // moveStepsToPos(1, 1);
     stepper_X.setCurrentPosition(1);
     stepper_Y.setCurrentPosition(1);
 
     digitalWrite(ENABLE_X, HIGH);
     digitalWrite(ENABLE_Y, HIGH);
+
+    moveStepsToPos(50, 30, 5000, 5000);
+
+    
 }

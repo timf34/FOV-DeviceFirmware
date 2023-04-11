@@ -31,7 +31,7 @@ String mp3_files[numberElements] =
         "ThisIsItForAwayTeam.mp3",
         "ThisIsItForAwayTeam.mp3",
         "ThisIsItForAwayTeam.mp3",
-        // "FovTut2new.mp3"
+        // "FovTut2new.mp3",
         "FovTut3.mp3",
         "FovTut4New.mp3",
         "FovTut5New.mp3",
@@ -224,43 +224,43 @@ void audio_eof_mp3(const char *info)
     }
     if (i == 6)
     {
-        Serial.println("EOF5");
+        Serial.println("EOF6");
         audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
         pwmMotor(2);
     }
     if (i == 7)
     {
-        Serial.println("EOF5");
+        Serial.println("EOF7");
         audio.connecttoFS(SPIFFS, mp3_files[5].c_str());
         pwmMotor(2);
     }
     if (i == 8)
     {
-        Serial.println("EOF5");
+        Serial.println("EOF8");
         audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
         pwmMotor(2);
     }
     if (i == 9)
     {
-        Serial.println("EOF5");
+        Serial.println("EOF9");
         audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
         pwmMotor(2);
     }
     if (i == 10)
     {
-        Serial.println("EOF5");
+        Serial.println("EOF10");
         audio.connecttoFS(SPIFFS, mp3_files[6].c_str());
         pwmMotor(2);
     }
     if (i == 11)
     {
-        Serial.println("EOF5");
+        Serial.println("EOF11");
         audio.connecttoFS(SPIFFS, mp3_files[7].c_str());
         pwmMotor(2);
     }
     if (i == 12)
     {
-        Serial.println("EOF5");
+        Serial.println("EOF12");
         audio.connecttoFS(SPIFFS, mp3_files[8].c_str());
         pwmMotor(2);
     }
@@ -502,12 +502,20 @@ void homeSteppers()
 
     Serial.print("Stepper X is Homing . . . . . . . . . . . ");
 
+    // Start a timer to check if the homing is taking too long
+    unsigned long homingTimer = millis();
+
     while (digitalRead(hall_X))
     {                                       // Make the Stepper move CCW until the switch is activated
         stepper_X.moveTo(initial_homing_X); // Set the position to move to
         initial_homing_X--;                 // Decrease by 1 for next move if needed
         stepper_X.run();                    // Start moving the stepper
         delay(1);
+        if (millis() - homingTimer > 30000)
+        {
+            Serial.println("Homing X Axis Timed Out");
+            break;
+        }
     }
 
     stepper_X.setCurrentPosition(0);      // Set the current position as zero for now
@@ -534,13 +542,20 @@ void homeSteppers()
 
     Serial.print("Stepper Y is Homing . . . . . . . . . . . ");
 
+    // Start a timer to check if the homing is taking too long
+    homingTimer = millis();
+
     while (digitalRead(hall_Y))
-    { // Make the Stepper move CCW until the switch is activated
-        // Serial.println(digitalRead(home_switch));
+    {                                       // Make the Stepper move CCW until the switch is activated
         stepper_Y.moveTo(initial_homing_Y); // Set the position to move to
         initial_homing_Y--;                 // Decrease by 1 for next move if needed
         stepper_Y.run();                    // Start moving the stepper
         delay(1);
+        if (millis() - homingTimer > 30000)
+        {
+            Serial.println("Homing Y Axis Timed Out");
+            break;
+        }
     }
 
     stepper_Y.setCurrentPosition(0);      // Set the current position as zero for now
@@ -557,6 +572,4 @@ void homeSteppers()
 
     digitalWrite(ENABLE_X, HIGH);
     digitalWrite(ENABLE_Y, HIGH);
-
-    moveStepsToPos(61, 32, 5000, 5000);
 }

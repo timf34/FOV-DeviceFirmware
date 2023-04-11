@@ -17,8 +17,32 @@
 const int mute = 0;
 Audio audio;
 
-const int numberElements = 4;
-String mp3_files[numberElements] = {"FovTut6thisIsItForAwayTeam.mp3", "FovTut8ThisIsItForHomeTeam.mp3", "FovTut2.mp3", "FovTut12.mp3"};
+const int numberElements = 18   ;
+String mp3_files[numberElements] =
+    {
+        // "FovTut6thisIsItForAwayTeam.mp3",
+        // "FovTut8ThisIsItForHomeTeam.mp3",
+        // "FovTut6thisIsItForAwayTeam.mp3",
+        // "FovTut8ThisIsItForHomeTeam.mp3",
+        // "FovTut6thisIsItForAwayTeam.mp3",
+        // "FovTut8ThisIsItForHomeTeam.mp3",
+        // "FovTut6thisIsItForAwayTeam.mp3",
+        // "FovTut8ThisIsItForHomeTeam.mp3"
+        "ThisIsItForAwayTeam.mp3",
+        "ThisIsItForAwayTeam.mp3",
+        "ThisIsItForAwayTeam.mp3",
+        // "FovTut2new.mp3"
+        "FovTut3.mp3",
+        "FovTut4New.mp3",
+        "FovTut5New.mp3",
+        "FovTut6.mp3",
+        "FovTut7.mp3",
+        "FovTut8.mp3",
+        "FovTut9.mp3",
+        "FovTut10.mp3",
+        "FovTut11.mp3",
+        "ThisIsItForAwayTeam.mp3",
+        "FovTut8ThisIsItForHomeTeam.mp3"};
 
 int i = 0;
 const char *c;
@@ -98,6 +122,23 @@ void AudioSetup()
     audio.setVolume(15); // 0...21
 }
 
+void listFilesInSPIFFS()
+{
+    File root = SPIFFS.open("/");
+    File file = root.openNextFile();
+
+    Serial.println("Files in SPIFFS:");
+
+    while (file)
+    {
+        Serial.print("File: ");
+        Serial.print(file.name());
+        Serial.print(" - Size: ");
+        Serial.println(file.size());
+        file = root.openNextFile();
+    }
+}
+
 void pwmPinsSetup()
 {
     // Setup Motor 1
@@ -138,50 +179,111 @@ void tutorial()
     i++;
 }
 
+void moveMotorsToGoalTask()
+{
+    xTaskCreatePinnedToCore(moveMotorsToGoal, "moveMotorsToGoal", 10000, NULL, 2, NULL, 0);
+}
+
 // void audio_eof_mp3(const char *info)
 void audio_eof_mp3(const char *info)
 {
     Serial.print("eof_mp3     ");
-    // Serial.println(info);
+    Serial.println(info);
     static int i = 1;
     if (i == 1)
     {
         Serial.println("EOF1");
         audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
         moveMotorsToGoalTask();
-        delay(1000);
     }
     if (i == 2)
     {
         Serial.println("EOF2");
         audio.connecttoFS(SPIFFS, mp3_files[2].c_str());
-        // Top vib
         moveMotorsToCentreTask();
     }
     if (i == 3)
     {
         Serial.println("EOF3");
         audio.connecttoFS(SPIFFS, mp3_files[3].c_str());
-        // Bottom vib
+        // Top vib
+        // pwmMotor(4);
     }
     if (i == 4)
     {
         Serial.println("EOF4");
-        audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
-        pwmMotor(3);
+        audio.connecttoFS(SPIFFS, mp3_files[4].c_str());
+        // Bottom vib
+        // pwmMotor(3);
     }
     if (i == 5)
     {
         Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
+        pwmMotor(5);
+    }
+    if (i == 6)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
         pwmMotor(2);
     }
-    i++;
-}
+    if (i == 7)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[5].c_str());
+        pwmMotor(2);
+    }
+    if (i == 8)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
+        pwmMotor(2);
+    }
+    if (i == 9)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        pwmMotor(2);
+    }
+    if (i == 10)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[6].c_str());
+        pwmMotor(2);
+    }
+    if (i == 11)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[7].c_str());
+        pwmMotor(2);
+    }
+    if (i == 12)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[8].c_str());
+        pwmMotor(2);
+    }
+    if (i == 13)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[9].c_str());
+        pwmMotor(2);
+    }
+    if (i == 14)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[10].c_str());
+        pwmMotor(2);
+    }
+    if (i == 15)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        pwmMotor(2);
+    }
 
-void moveMotorsToGoalTask()
-{
-    xTaskCreatePinnedToCore(moveMotorsToGoal, "moveMotorsToGoal", 10000, NULL, 2, NULL, 0);
+    i++;
 }
 
 void moveMotorsToGoal(void *pvParameters)
@@ -206,15 +308,23 @@ void setup()
 {
     Serial.begin(9600);
 
+    if (!SPIFFS.begin(true))
+    {
+        Serial.println("SPIFFS initialization failed");
+        return;
+    }
+    Serial.println("SPIFFS initialization successful");
+
     stepperSetup();
     hallSensorsSetup();
-    homeSteppers();
+    homeSteppers(); // Commented just to speed up testing.
     pwmPinsSetup();
+    listFilesInSPIFFS();
 
     AudioSetup();
-    // coreSetup();
-    tutorial();
 }
+
+bool begin_audio = true;
 
 void loop()
 {
@@ -225,6 +335,12 @@ void loop()
     while (true)
     {
         audio.loop();
+
+        if (begin_audio == true)
+        {
+            tutorial();
+            begin_audio = false;
+        }
     }
 }
 
@@ -313,7 +429,7 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM1_Ch, 0);
     }
 
-    // VibeMode = 2 Home Pass 
+    // VibeMode = 2 Home Pass
     if (vibeMode == 2)
     {
         ledcWrite(PWM2_Ch, 210);
@@ -399,14 +515,6 @@ void homeSteppers()
     stepper_X.setAcceleration(homingSpd); // Set Acceleration of Stepper
     initial_homing_X = -1;
 
-    while (!digitalRead(hall_X))
-    { // Make the Stepper move CW until the switch is deactivated
-        stepper_X.moveTo(initial_homing_X);
-        stepper_X.run();
-        initial_homing_X++;
-        delay(1);
-    }
-
     stepper_X.setCurrentPosition(0);
     Serial.println("Homing X Axis Completed");
 
@@ -439,14 +547,6 @@ void homeSteppers()
     stepper_Y.setMaxSpeed(homingSpd);     // Set Max Speed of Stepper (Slower to get better accuracy)
     stepper_Y.setAcceleration(homingSpd); // Set Acceleration of Stepper
     initial_homing_Y = 1;
-
-    while (!digitalRead(hall_Y))
-    { // Make the Stepper move CW until the switch is deactivated
-        stepper_Y.moveTo(initial_homing_Y);
-        stepper_Y.run();
-        initial_homing_Y++;
-        delay(1);
-    }
 
     stepper_Y.setCurrentPosition(0);
     Serial.println("Homing Y Axis Completed");

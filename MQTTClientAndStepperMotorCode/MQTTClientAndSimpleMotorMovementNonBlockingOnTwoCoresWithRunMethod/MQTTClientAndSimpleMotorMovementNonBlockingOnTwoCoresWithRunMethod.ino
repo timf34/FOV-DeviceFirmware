@@ -231,15 +231,15 @@ void setup()
     if (use_cores == true)
     {
 
-        xTaskCreatePinnedToCore(
-            Core0Code,   /* Task function. */
-            "Core0Code", /* name of task. */
-            20000,       /* Stack size of task */
-            NULL,        /* parameter of the task */
-            1,           /* priority of the task */
-            NULL,        /* Task handle to keep track of created task */
-            0            /* pin task to core 0 */
-        );
+        // xTaskCreatePinnedToCore(
+        //     Core0Code,   /* Task function. */
+        //     "Core0Code", /* name of task. */
+        //     20000,       /* Stack size of task */
+        //     NULL,        /* parameter of the task */
+        //     1,           /* priority of the task */
+        //     NULL,        /* Task handle to keep track of created task */
+        //     0            /* pin task to core 0 */
+        // );
 
         // TODO: note this code doesn't execute if we set the priotity to 0... and if we set it to 1, the above code doesn't execute... Lets try switching them around once I'm back.
         xTaskCreatePinnedToCore(

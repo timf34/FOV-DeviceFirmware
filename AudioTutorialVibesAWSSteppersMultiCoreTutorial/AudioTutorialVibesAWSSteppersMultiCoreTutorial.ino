@@ -26,7 +26,7 @@
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
 
-// Audio intialization 
+// Audio intialization
 // Digital I/O used
 #define I2S_DOUT 22 // DIN connection
 #define I2S_BCLK 25 // Bit clock
@@ -34,7 +34,7 @@ PubSubClient client(net);
 const int mute = 0;
 Audio audio;
 
-const int numberElements = 18   ;
+const int numberElements = 18;
 String mp3_files[numberElements] =
     {
         "FovTut1.mp3",
@@ -58,8 +58,8 @@ int period = 30;
 unsigned long time_now = 0;
 bool AudioOn = true;
 bool eof = false;
-// End of audio initialization 
-
+bool exit_loop = false;
+// End of audio initialization
 
 #define ENABLE_Y 19
 #define DIR_Y 13
@@ -128,9 +128,34 @@ int goal = 0;
 
 String userInputTopic;
 
+void AudioSetup()
+{
+    SPIFFS.begin(true);
+    pinMode(mute, OUTPUT);
+    digitalWrite(mute, HIGH);
+    audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+    audio.setVolume(18); // 0...21
+}
+
+void listFilesInSPIFFS()
+{
+    File root = SPIFFS.open("/");
+    File file = root.openNextFile();
+
+    Serial.println("Files in SPIFFS:");
+
+    while (file)
+    {
+        Serial.print("File: ");
+        Serial.print(file.name());
+        Serial.print(" - Size: ");
+        Serial.println(file.size());
+        file = root.openNextFile();
+    }
+}
+
 void pwmPinsSetup()
 {
-
     // Setup Motor 1
     ledcAttachPin(VIB_GPIO1, PWM1_Ch);
     ledcSetup(PWM1_Ch, PWM1_Freq, PWM1_Res);
@@ -193,6 +218,135 @@ void wifiManagerSetup()
 //     }
 //     userInputTopic = custom_text_box.getValue();
 // }
+
+void tutorial()
+{
+    Serial.println("before tut1");
+    // audio.connecttoFS(SPIFFS, mp3_files[0].c_str());
+    audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // TODO: temporarily using a shorter audio file for testing.
+    Serial.println("after tut1");
+    i++;
+}
+
+void moveMotorsToGoalTask()
+{
+    xTaskCreatePinnedToCore(moveMotorsToGoal, "moveMotorsToGoal", 10000, NULL, 2, NULL, 0);
+}
+
+// void audio_eof_mp3(const char *info)
+void audio_eof_mp3(const char *info)
+{
+    Serial.print("eof_mp3     ");
+    Serial.println(info);
+    static int i = 1;
+    if (i == 1)
+    {
+        Serial.println("EOF1");
+        // audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // TODO: temporarily using a shorter audio file for testing.
+        moveMotorsToGoalTask();
+    }
+    if (i == 2)
+    {
+        Serial.println("EOF2");
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        moveMotorsToCentreTask();
+    }
+    if (i == 3)
+    {
+        Serial.println("EOF3");
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        // Top vib
+        pwmMotor(4);
+
+        exit_loop = true;
+        Serial.println("exiting loop");
+    }
+    if (i == 4)
+    {
+        Serial.println("EOF4");
+        audio.connecttoFS(SPIFFS, mp3_files[4].c_str());
+        // Bottom vib
+        pwmMotor(3);
+    }
+    if (i == 5)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[5].c_str());
+        pwmMotor(5);
+    }
+    if (i == 6)
+    {
+        Serial.println("EOF6");
+        audio.connecttoFS(SPIFFS, mp3_files[6].c_str());
+        pwmMotor(2);
+    }
+    if (i == 7)
+    {
+        Serial.println("EOF7");
+        audio.connecttoFS(SPIFFS, mp3_files[7].c_str());
+        pwmMotor(2);
+    }
+    if (i == 8)
+    {
+        Serial.println("EOF8");
+        audio.connecttoFS(SPIFFS, mp3_files[8].c_str());
+        pwmMotor(2);
+    }
+    if (i == 9)
+    {
+        Serial.println("EOF9");
+        audio.connecttoFS(SPIFFS, mp3_files[9].c_str());
+        pwmMotor(2);
+    }
+    if (i == 10)
+    {
+        Serial.println("EOF10");
+        audio.connecttoFS(SPIFFS, mp3_files[10].c_str());
+        pwmMotor(2);
+    }
+    if (i == 11)
+    {
+        Serial.println("EOF11");
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        pwmMotor(2);
+    }
+    if (i == 12)
+    {
+        Serial.println("EOF12");
+        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
+        pwmMotor(2);
+    }
+    if (i == 13)
+    {
+        Serial.println("EOF5");
+        audio.connecttoFS(SPIFFS, mp3_files[13].c_str());
+        pwmMotor(2);
+        exit_loop = true;
+        Serial.println("exiting loop");
+    }
+    i++;
+}
+
+void moveMotorsToGoal(void *pvParameters)
+{
+    Serial.println("before moveStepsToPos");
+    moveStepsToPos(0, 32, 5000, 5000);
+    vTaskDelete(NULL);
+    Serial.println("Task deleted: moveMotorsToGoal");
+}
+
+void moveMotorsToCentre(void *pvParameters)
+{
+    moveStepsToPos(52, 32, 8000, 8000);
+    vTaskDelete(NULL);
+    Serial.println("Task deleted: moveMotorsToCentre");
+}
+
+void moveMotorsToCentreTask()
+{
+    xTaskCreatePinnedToCore(moveMotorsToCentre, "moveMotorsToCentre", 10000, NULL, 1, NULL, 0);
+}
 
 void connectAWS()
 {
@@ -342,13 +496,14 @@ void stepperSetup()
 }
 
 void hallSensorsSetup()
-{
+{    
     pinMode(hall_X, INPUT);
     pinMode(hall_Y, INPUT);
 }
 
 void Core0Code(void *pvParameters)
 {
+    // Note: these seem to have to be initialized here for things to work. 
     stepperSetup();
     hallSensorsSetup();
     homeSteppers();
@@ -418,6 +573,8 @@ void Core1Code(void *pvParameters)
     }
 }
 
+bool begin_audio = true;
+
 void setup()
 {
     Serial.begin(9600);
@@ -431,6 +588,25 @@ void setup()
 
     connectAWS();
     pwmPinsSetup();
+    // stepperSetup();
+    // hallSensorsSetup();
+    // homeSteppers();
+    // listFilesInSPIFFS();
+
+    // AudioSetup();
+
+    // while (!exit_loop)
+    // {
+    //     audio.loop();
+
+    //     if (begin_audio == true)
+    //     {
+    //         tutorial();
+    //         begin_audio = false;
+    //     }
+    // }
+
+    Serial.println("Entering game day mode");
 
     if (use_cores == true)
     {

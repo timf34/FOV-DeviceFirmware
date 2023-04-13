@@ -91,7 +91,6 @@ String userInputTopic;
 
 void pwmPinsSetup()
 {
-
     // Setup Motor 1
     ledcAttachPin(VIB_GPIO1, PWM1_Ch);
     ledcSetup(PWM1_Ch, PWM1_Freq, PWM1_Res);

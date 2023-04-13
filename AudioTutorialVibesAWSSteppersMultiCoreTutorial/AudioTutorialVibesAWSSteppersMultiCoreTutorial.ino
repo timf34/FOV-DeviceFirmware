@@ -59,6 +59,7 @@ unsigned long time_now = 0;
 bool AudioOn = true;
 bool eof = false;
 bool exit_loop = false;
+
 // End of audio initialization
 
 #define ENABLE_Y 19
@@ -504,8 +505,8 @@ void hallSensorsSetup()
 void Core0Code(void *pvParameters)
 {
     // Note: these seem to have to be initialized here for things to work. 
-    stepperSetup();
-    hallSensorsSetup();
+    // stepperSetup();
+    // hallSensorsSetup();
     homeSteppers();
 
     digitalWrite(ENABLE_X, LOW);
@@ -569,11 +570,12 @@ void Core1Code(void *pvParameters)
     for (;;)
     {
         client.loop();
-        vTaskDelay(50);
+        vTaskDelay(60);
     }
 }
 
 bool begin_audio = true;
+
 
 void setup()
 {
@@ -588,23 +590,23 @@ void setup()
 
     connectAWS();
     pwmPinsSetup();
-    // stepperSetup();
-    // hallSensorsSetup();
-    // homeSteppers();
-    // listFilesInSPIFFS();
+    stepperSetup();
+    hallSensorsSetup();
+    homeSteppers();
+    listFilesInSPIFFS();
 
-    // AudioSetup();
+    AudioSetup();
 
-    // while (!exit_loop)
-    // {
-    //     audio.loop();
+    while (!exit_loop)
+    {
+        audio.loop();
 
-    //     if (begin_audio == true)
-    //     {
-    //         tutorial();
-    //         begin_audio = false;
-    //     }
-    // }
+        if (begin_audio == true)
+        {
+            tutorial();
+            begin_audio = false;
+        }
+    }
 
     Serial.println("Entering game day mode");
 
@@ -625,7 +627,7 @@ void setup()
         xTaskCreatePinnedToCore(
             Core1Code,   /* Task function. */
             "Core1Code", /* name of task. */
-            20000,       /* Stack size of task */
+            10000,       /* Stack size of task */
             NULL,        /* parameter of the task */
             2,           /* priority of the task */
             NULL,        /* Task handle to keep track of created task */
@@ -684,6 +686,8 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
     Serial.println(_xSpd);
     Serial.print("Y Speed: ");
     Serial.println(_ySpd);
+    Serial.print("Client state: ");
+    Serial.println(client.state());
 
     int x_acc = 65000;
     int y_acc = 65000;

@@ -122,7 +122,7 @@ long stepper_x_pos = 0;
 long stepper_y_pos = 0;
 
 int vibeMode = 10;
-int possession = 66;
+int possession = 66;    
 int pass = 0;
 int receive = 0;
 int goal = 0;
@@ -223,8 +223,8 @@ void wifiManagerSetup()
 void tutorial()
 {
     Serial.println("before tut1");
-    // audio.connecttoFS(SPIFFS, mp3_files[0].c_str());
-    audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // TODO: temporarily using a shorter audio file for testing.
+    audio.connecttoFS(SPIFFS, mp3_files[0].c_str());
+    // audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // TODO: temporarily using a shorter audio file for testing.
     Serial.println("after tut1");
     i++;
 }
@@ -244,24 +244,21 @@ void audio_eof_mp3(const char *info)
     {
         Serial.println("EOF1");
         // audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // TODO: temporarily using a shorter audio file for testing.
+        audio.connecttoFS(SPIFFS, mp3_files[1].c_str()); // TODO: temporarily using a shorter audio file for testing.
         moveMotorsToGoalTask();
     }
     if (i == 2)
     {
         Serial.println("EOF2");
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[2].c_str());
         moveMotorsToCentreTask();
     }
     if (i == 3)
     {
         Serial.println("EOF3");
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[3].c_str());
         // Top vib
         pwmMotor(4);
-
-        exit_loop = true;
-        Serial.println("exiting loop");
     }
     if (i == 4)
     {
@@ -588,7 +585,6 @@ void setup()
     Serial.print("Free memory: ");
     Serial.println(ESP.getFreeHeap());
 
-    connectAWS();
     pwmPinsSetup();
     stepperSetup();
     hallSensorsSetup();
@@ -609,6 +605,7 @@ void setup()
     }
 
     Serial.println("Entering game day mode");
+    connectAWS();
 
     if (use_cores == true)
     {

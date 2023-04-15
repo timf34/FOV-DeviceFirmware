@@ -37,19 +37,21 @@ Audio audio;
 const int numberElements = 18;
 String mp3_files[numberElements] =
     {
-        "FovTut1.mp3",
+        "FovTut1a.mp3",
+        "FovTut1b.mp3",
         "FovTut2new.mp3",
-        "FovTut3.mp3",
-        "FovTut4New.mp3",
-        "FovTut5New.mp3",
-        "FovTut6.mp3",
-        "FovTut7.mp3",
-        "FovTut8.mp3",
-        "FovTut9.mp3",
-        "FovTut10.mp3",
-        "FovTut11.mp3",
-        "ThisIsItForAwayTeam.mp3",  // index 11
-        "ThisIsItForHomeTeam.mp3"}; // index 12
+        "NewTut3.mp3",
+        "NewTut4.mp3",
+        "NewTut5.mp3",
+        "NewTut6.mp3",
+        "NewTut7.mp3",
+        "NewTut8.mp3",
+        "NewTut9.mp3",
+        "NewTut10.mp3",
+        "NewTut11.mp3",
+        "NewTut12.mp3",
+        "ThisIsItForAwayTeam.mp3",  // index 13
+        "ThisIsItForHomeTeam.mp3"}; // index 14
 
 int i = 0;
 const char *c;
@@ -141,6 +143,8 @@ void AudioSetup()
 
 void listFilesInSPIFFS()
 {
+    // Note: ensure that `SPIFFS.begin()` has been called before this function
+    Serial.println("Ensure SPIFFS.begin() has been called before calling listFilesInSPIFFS()");
     File root = SPIFFS.open("/");
     File file = root.openNextFile();
 
@@ -224,9 +228,17 @@ void wifiManagerSetup()
 void tutorial()
 {
     Serial.println("before tut1");
-    audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // TODO: temporarily using a shorter audio file for testing.
-    // audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
+    audio.connecttoFS(SPIFFS, mp3_files[0].c_str()); // TODO: temporarily using a shorter audio file for testing.
     Serial.println("after tut1");
+    Serial.print("Here is the mp3_files array: ");
+    for (int i = 0; i < 15; i++)
+    {
+        Serial.print("i: ");
+        Serial.print(i);
+        Serial.print(" ");
+        Serial.print(mp3_files[i]);
+        Serial.println(" ");
+    }
     i++;
 }
 
@@ -244,71 +256,88 @@ void audio_eof_mp3(const char *info)
     if (i == 1)
     {
         Serial.println("EOF1");
-        audio.connecttoFS(SPIFFS, mp3_files[1].c_str()); // "Now the ball will start..."
-        moveMotorsToGoalTask();
+        audio.connecttoFS(SPIFFS, mp3_files[1].c_str()); // "Using whichever hand feels..."
     }
     if (i == 2)
     {
         Serial.println("EOF2");
-        moveMotorsToCentreTask();
-        audio.connecttoFS(SPIFFS, mp3_files[2].c_str()); // "Now the ball will move back to the centre..."
-        // Top vib
-        pwmMotor(5);
+        moveMotorsToGoalTask();
+        audio.connecttoFS(SPIFFS, mp3_files[2].c_str()); // "Now the ball will start moving slowly..."
     }
     if (i == 3)
     {
         Serial.println("EOF3");
-        audio.connecttoFS(SPIFFS, mp3_files[3].c_str()); // "You should feel it now... it has a sharp, high pitch buzz..."
-        // Bottom vib
-        pwmMotor(3);
+        moveMotorsToCentreTask();
+        audio.connecttoFS(SPIFFS, mp3_files[3].c_str()); // "Now, the ball will move back to the centre"
     }
     if (i == 4)
     {
         Serial.println("EOF4");
-        audio.connecttoFS(SPIFFS, mp3_files[4].c_str()); // "You should feel it now... it has a deeper, lower pitch rumble"
+        pwmMotor(4); 
+        audio.connecttoFS(SPIFFS, mp3_files[4].c_str()); // "You should feel it now. It has a deeper, lower pitch rumble"
     }
     if (i == 5)
     {
         Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[5].c_str()); // "When a player passes, kicks, heads..."
+        pwmMotor(2);                                      // Away team kick
+        audio.connecttoFS(SPIFFS, mp3_files[5].c_str()); // "You should feel it now, it has a sharp, high pitch buzz"
     }
     if (i == 6)
     {
         Serial.println("EOF6");
-        audio.connecttoFS(SPIFFS, mp3_files[12].c_str()); // "This is it for home team"
+        audio.connecttoFS(SPIFFS, mp3_files[14].c_str()); // "This is it for home team"
     }
     if (i == 7)
     {
         Serial.println("EOF7");
-        pwmMotor(4);                                      // Home player ball leaves player
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // This is it for away team"
+        pwmMotor(4);                                      // Home team kick
+        audio.connecttoFS(SPIFFS, mp3_files[13].c_str()); // This is it for away team"
     }
     if (i == 8)
     {
         Serial.println("EOF8");
         pwmMotor(2);                                     // Away player ball leaves player
-        audio.connecttoFS(SPIFFS, mp3_files[6].c_str()); // "When a goal is scored, a longer..."
+        audio.connecttoFS(SPIFFS, mp3_files[6].c_str()); // "When possession of the ball changes..."
     }
     if (i == 9)
     {
         Serial.println("EOF9");
-        audio.connecttoFS(SPIFFS, mp3_files[7].c_str()); // "This is a home player kicking or heading..."
+        pwmMotor(5); // Home team poschange
+        audio.connecttoFS(SPIFFS, mp3_files[7].c_str()); // "This is possession changing to the away team"
     }
     if (i == 10)
     {
         Serial.println("EOF10");
-        pwmMotor(4);
-        audio.connecttoFS(SPIFFS, mp3_files[9].c_str()); // "This is an away player kicking or heading..."
+        pwmMotor(3);  // Away team poschange
+        audio.connecttoFS(SPIFFS, mp3_files[8].c_str()); // "When a goal is scored, a longer more intense vibration will occur"
     }
     if (i == 11)
     {
         Serial.println("EOF11");
-        pwmMotor(2);
-        audio.connecttoFS(SPIFFS, mp3_files[10].c_str()); // "With this information..."
+        pwmMotor(4);  // Home team kick
+        audio.connecttoFS(SPIFFS, mp3_files[9].c_str()); // "This is an away player kicking or heading the ball"
     }
     if (i == 12)
     {
         Serial.println("EOF12");
+        pwmMotor(2);  // Away team kick
+        audio.connecttoFS(SPIFFS, mp3_files[10].c_str()); // "This is a possession changing to the home team"
+    }
+        if (i == 13)
+    {
+        Serial.println("EOF12");
+        pwmMotor(5); // Home team poschange
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // "This is possession changing to the away team"
+    }
+    if (i == 14)
+    {
+        Serial.println("EOF12");
+        pwmMotor(3);  // Away team poschange
+        audio.connecttoFS(SPIFFS, mp3_files[12].c_str()); // "With this information..."
+    }
+    if (i == 15)
+    {
+        Serial.println("EOF15");
         exit_loop = true;
         Serial.println("exiting loop");
     }
@@ -586,9 +615,10 @@ void setup()
     hallSensorsSetup();
     homeSteppers();
     moveStepsToPos(52, 32, 5000, 5000); // Centre up the fingerpiece
-    listFilesInSPIFFS();
 
     AudioSetup();
+    listFilesInSPIFFS();
+
 
     while (!exit_loop)
     {

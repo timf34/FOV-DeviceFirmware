@@ -83,6 +83,7 @@ long stepper_y_pos = 0;
 
 int vibeMode = 10;
 int possession = 66;
+int prevPossession = 66;
 int pass = 0;
 int receive = 0;
 int goal = 0;
@@ -226,6 +227,10 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 2;
         }
+        else if (possession != prevPossession)
+        {
+            vibeMode = 3;
+        }
         else if (goal == 1)
         {
             vibeMode = 1;
@@ -234,6 +239,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 0;
         }
+        prevPossession = possession; // TODO: If I make this a typo, why doesn't VSCode pick it up!!??? (i.e. it should catch if its 'posesion' but it doesn't!)
     }
     // home
     else if (possession == 1)
@@ -242,6 +248,10 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 4;
         }
+        else if (possession != prevPossession)
+        {
+            vibeMode = 5;
+        }
         else if (goal == 1)
         {
             vibeMode = 1;
@@ -250,14 +260,13 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 0;
         }
+        prevPossession = possession;
     }
 
     else
     {
         vibeMode = 0;
     }
-
-    // Serial.println("xSpd before speedCalc: " + String(xSpd));
 
     stepper_x_pos = stepper_X.currentPosition();
     stepper_y_pos = stepper_Y.currentPosition();
@@ -595,8 +604,6 @@ void homeSteppers()
     digitalWrite(ENABLE_Y, HIGH);
 }
 
-// vibration response depending on events
-// vibration response depending on events
 void pwmMotor(int vibeMode)
 {
 
@@ -610,28 +617,21 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 0);
     }
 
-    // VibeMode = 2 away Pass
-    if (vibeMode == 2)
+    if (vibeMode == 2) // away pass
     {
         ledcWrite(PWM1_Ch, 210);
         delay(25);
         ledcWrite(PWM1_Ch, 145);
-        delay(80);
-        ledcWrite(PWM1_Ch, 0);
-        delay(120);
-        ledcWrite(PWM1_Ch, 210);
-        delay(25);
-        ledcWrite(PWM1_Ch, 145);
-        delay(80);
+        delay(60);
         ledcWrite(PWM1_Ch, 0);
     }
-    // VibeMode = 3 away Receive
+    // VibeMode = 3 away POSCHANGE
     if (vibeMode == 3)
     {
         ledcWrite(PWM1_Ch, 210);
         delay(25);
         ledcWrite(PWM1_Ch, 145);
-        delay(80);
+        delay(240);
         ledcWrite(PWM1_Ch, 0);
     }
 
@@ -641,27 +641,19 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 210);
         delay(40);
         ledcWrite(PWM2_Ch, 75);
-        delay(140);
-        ledcWrite(PWM2_Ch, 0);
-        delay(150);
-        ledcWrite(PWM2_Ch, 210);
-        delay(40);
-        ledcWrite(PWM2_Ch, 75);
-        delay(140);
+        delay(100);
         ledcWrite(PWM2_Ch, 0);
     }
 
-    // VibeMode = 5 home Receive
+    // VibeMode = 5 home POSCHANGE
     if (vibeMode == 5)
     {
         ledcWrite(PWM2_Ch, 210);
-        delay(40);
+        delay(50);
         ledcWrite(PWM2_Ch, 70);
-        delay(140);
+        delay(350);
         ledcWrite(PWM2_Ch, 0);
     }
-
-    // TODO: need a "goal" vibeMode buzz
 
     vibeMode = 99; // reset vibeMode
 }

@@ -49,7 +49,7 @@ String mp3_files[numberElements] =
         "FovTut10.mp3",
         "FovTut11.mp3",
         "ThisIsItForAwayTeam.mp3",  // index 11
-        "ThisIsItForHomeTeam.mp3"};  // index 12
+        "ThisIsItForHomeTeam.mp3"}; // index 12
 
 int i = 0;
 const char *c;
@@ -122,7 +122,8 @@ long stepper_x_pos = 0;
 long stepper_y_pos = 0;
 
 int vibeMode = 10;
-int possession = 66;    
+int possession = 66;
+int prevPossession = 66;
 int pass = 0;
 int receive = 0;
 int goal = 0;
@@ -223,8 +224,8 @@ void wifiManagerSetup()
 void tutorial()
 {
     Serial.println("before tut1");
-    audio.connecttoFS(SPIFFS, mp3_files[0].c_str());
-    // audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // TODO: temporarily using a shorter audio file for testing.
+    audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // TODO: temporarily using a shorter audio file for testing.
+    // audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
     Serial.println("after tut1");
     i++;
 }
@@ -243,7 +244,7 @@ void audio_eof_mp3(const char *info)
     if (i == 1)
     {
         Serial.println("EOF1");
-        audio.connecttoFS(SPIFFS, mp3_files[1].c_str());  // "Now the ball will start..."
+        audio.connecttoFS(SPIFFS, mp3_files[1].c_str()); // "Now the ball will start..."
         moveMotorsToGoalTask();
     }
     if (i == 2)
@@ -252,60 +253,62 @@ void audio_eof_mp3(const char *info)
         moveMotorsToCentreTask();
         audio.connecttoFS(SPIFFS, mp3_files[2].c_str()); // "Now the ball will move back to the centre..."
         // Top vib
-        pwmMotor(2);
+        pwmMotor(5);
     }
     if (i == 3)
     {
         Serial.println("EOF3");
-        audio.connecttoFS(SPIFFS, mp3_files[3].c_str());  // "You should feel it now... it has a sharp, high pitch buzz..."
+        audio.connecttoFS(SPIFFS, mp3_files[3].c_str()); // "You should feel it now... it has a sharp, high pitch buzz..."
         // Bottom vib
-        pwmMotor(4);
-
+        pwmMotor(3);
     }
     if (i == 4)
     {
         Serial.println("EOF4");
-        audio.connecttoFS(SPIFFS, mp3_files[4].c_str());  // "You should feel it now... it has a deeper, lower pitch rumble"
+        audio.connecttoFS(SPIFFS, mp3_files[4].c_str()); // "You should feel it now... it has a deeper, lower pitch rumble"
     }
     if (i == 5)
     {
         Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[5].c_str());   // "When a player passes, kicks, heads..."
+        audio.connecttoFS(SPIFFS, mp3_files[5].c_str()); // "When a player passes, kicks, heads..."
     }
     if (i == 6)
     {
         Serial.println("EOF6");
-        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());  // "This is it for home team"
-        pwmMotor(4);  // Home player ball leaves player
+        audio.connecttoFS(SPIFFS, mp3_files[12].c_str()); // "This is it for home team"
     }
     if (i == 7)
     {
         Serial.println("EOF7");
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());  // This is it for away team"
-        pwmMotor(2);  // Away player ball leaves player
+        pwmMotor(4);                                      // Home player ball leaves player
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str()); // This is it for away team"
     }
     if (i == 8)
     {
         Serial.println("EOF8");
-        audio.connecttoFS(SPIFFS, mp3_files[6].c_str());  // "When a goal is scored, a longer..."
+        pwmMotor(2);                                     // Away player ball leaves player
+        audio.connecttoFS(SPIFFS, mp3_files[6].c_str()); // "When a goal is scored, a longer..."
     }
     if (i == 9)
     {
         Serial.println("EOF9");
-        audio.connecttoFS(SPIFFS, mp3_files[7].c_str());  // "This is a home player kicking or heading..."
-        pwmMotor(4);
+        audio.connecttoFS(SPIFFS, mp3_files[7].c_str()); // "This is a home player kicking or heading..."
     }
     if (i == 10)
     {
         Serial.println("EOF10");
-        audio.connecttoFS(SPIFFS, mp3_files[9].c_str());  // "This is an away player kicking or heading..."
-        pwmMotor(2);
+        pwmMotor(4);
+        audio.connecttoFS(SPIFFS, mp3_files[9].c_str()); // "This is an away player kicking or heading..."
     }
     if (i == 11)
     {
         Serial.println("EOF11");
-        audio.connecttoFS(SPIFFS, mp3_files[10].c_str());  // "With this information..."
         pwmMotor(2);
+        audio.connecttoFS(SPIFFS, mp3_files[10].c_str()); // "With this information..."
+    }
+    if (i == 12)
+    {
+        Serial.println("EOF12");
         exit_loop = true;
         Serial.println("exiting loop");
     }
@@ -404,6 +407,10 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 2;
         }
+        else if (possession != prevPossession)
+        {
+            vibeMode = 3;
+        }
         else if (goal == 1)
         {
             vibeMode = 1;
@@ -412,6 +419,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 0;
         }
+        prevPossession = possession; // TODO: If I make this a typo, why doesn't VSCode pick it up!!??? (i.e. it should catch if its 'posesion' but it doesn't!)
     }
     // home
     else if (possession == 1)
@@ -420,6 +428,10 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 4;
         }
+        else if (possession != prevPossession)
+        {
+            vibeMode = 5;
+        }
         else if (goal == 1)
         {
             vibeMode = 1;
@@ -428,14 +440,13 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 0;
         }
+        prevPossession = possession;
     }
 
     else
     {
         vibeMode = 0;
     }
-
-    // Serial.println("xSpd before speedCalc: " + String(xSpd));
 
     stepper_x_pos = stepper_X.currentPosition();
     stepper_y_pos = stepper_Y.currentPosition();
@@ -480,14 +491,14 @@ void stepperSetup()
 }
 
 void hallSensorsSetup()
-{    
+{
     pinMode(hall_X, INPUT);
     pinMode(hall_Y, INPUT);
 }
 
 void Core0Code(void *pvParameters)
 {
-    // Note: these seem to have to be initialized here for things to work. 
+    // Note: these seem to have to be initialized here for things to work.
     // stepperSetup();
     // hallSensorsSetup();
     homeSteppers();
@@ -559,7 +570,6 @@ void Core1Code(void *pvParameters)
 
 bool begin_audio = true;
 
-
 void setup()
 {
     Serial.begin(9600);
@@ -575,7 +585,7 @@ void setup()
     stepperSetup();
     hallSensorsSetup();
     homeSteppers();
-    moveStepsToPos(52, 32, 5000, 5000);  // Centre up the fingerpiece
+    moveStepsToPos(52, 32, 5000, 5000); // Centre up the fingerpiece
     listFilesInSPIFFS();
 
     AudioSetup();
@@ -799,8 +809,6 @@ void homeSteppers()
     digitalWrite(ENABLE_Y, HIGH);
 }
 
-// vibration response depending on events
-// vibration response depending on events
 void pwmMotor(int vibeMode)
 {
 
@@ -814,28 +822,21 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 0);
     }
 
-    // VibeMode = 2 away Pass
-    if (vibeMode == 2)
+    if (vibeMode == 2) // away pass
     {
         ledcWrite(PWM1_Ch, 210);
         delay(25);
         ledcWrite(PWM1_Ch, 145);
-        delay(80);
-        ledcWrite(PWM1_Ch, 0);
-        delay(120);
-        ledcWrite(PWM1_Ch, 210);
-        delay(25);
-        ledcWrite(PWM1_Ch, 145);
-        delay(80);
+        delay(60);
         ledcWrite(PWM1_Ch, 0);
     }
-    // VibeMode = 3 away Receive
+    // VibeMode = 3 away POSCHANGE
     if (vibeMode == 3)
     {
         ledcWrite(PWM1_Ch, 210);
         delay(25);
         ledcWrite(PWM1_Ch, 145);
-        delay(80);
+        delay(240);
         ledcWrite(PWM1_Ch, 0);
     }
 
@@ -845,27 +846,19 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 210);
         delay(40);
         ledcWrite(PWM2_Ch, 75);
-        delay(140);
-        ledcWrite(PWM2_Ch, 0);
-        delay(150);
-        ledcWrite(PWM2_Ch, 210);
-        delay(40);
-        ledcWrite(PWM2_Ch, 75);
-        delay(140);
+        delay(100);
         ledcWrite(PWM2_Ch, 0);
     }
 
-    // VibeMode = 5 home Receive
+    // VibeMode = 5 home POSCHANGE
     if (vibeMode == 5)
     {
         ledcWrite(PWM2_Ch, 210);
-        delay(40);
+        delay(50);
         ledcWrite(PWM2_Ch, 70);
-        delay(140);
+        delay(350);
         ledcWrite(PWM2_Ch, 0);
     }
-
-    // TODO: need a "goal" vibeMode buzz
 
     vibeMode = 99; // reset vibeMode
 }

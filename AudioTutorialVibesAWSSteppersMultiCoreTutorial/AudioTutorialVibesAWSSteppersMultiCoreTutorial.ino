@@ -48,8 +48,8 @@ String mp3_files[numberElements] =
         "FovTut9.mp3",
         "FovTut10.mp3",
         "FovTut11.mp3",
-        "ThisIsItForAwayTeam.mp3",
-        "ThisIsItForHomeTeam.mp3"};
+        "ThisIsItForAwayTeam.mp3",  // index 11
+        "ThisIsItForHomeTeam.mp3"};  // index 12
 
 int i = 0;
 const char *c;
@@ -135,7 +135,7 @@ void AudioSetup()
     pinMode(mute, OUTPUT);
     digitalWrite(mute, HIGH);
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    audio.setVolume(18); // 0...21
+    audio.setVolume(21); // 0...21
 }
 
 void listFilesInSPIFFS()
@@ -243,82 +243,68 @@ void audio_eof_mp3(const char *info)
     if (i == 1)
     {
         Serial.println("EOF1");
-        // audio.connecttoFS(SPIFFS, mp3_files[1].c_str());
-        audio.connecttoFS(SPIFFS, mp3_files[1].c_str()); // TODO: temporarily using a shorter audio file for testing.
+        audio.connecttoFS(SPIFFS, mp3_files[1].c_str());  // "Now the ball will start..."
         moveMotorsToGoalTask();
     }
     if (i == 2)
     {
         Serial.println("EOF2");
-        audio.connecttoFS(SPIFFS, mp3_files[2].c_str());
         moveMotorsToCentreTask();
+        audio.connecttoFS(SPIFFS, mp3_files[2].c_str()); // "Now the ball will move back to the centre..."
+        // Top vib
+        pwmMotor(2);
     }
     if (i == 3)
     {
         Serial.println("EOF3");
-        audio.connecttoFS(SPIFFS, mp3_files[3].c_str());
-        // Top vib
+        audio.connecttoFS(SPIFFS, mp3_files[3].c_str());  // "You should feel it now... it has a sharp, high pitch buzz..."
+        // Bottom vib
         pwmMotor(4);
+
     }
     if (i == 4)
     {
         Serial.println("EOF4");
-        audio.connecttoFS(SPIFFS, mp3_files[4].c_str());
-        // Bottom vib
-        pwmMotor(3);
+        audio.connecttoFS(SPIFFS, mp3_files[4].c_str());  // "You should feel it now... it has a deeper, lower pitch rumble"
     }
     if (i == 5)
     {
         Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[5].c_str());
-        pwmMotor(5);
+        audio.connecttoFS(SPIFFS, mp3_files[5].c_str());   // "When a player passes, kicks, heads..."
     }
     if (i == 6)
     {
         Serial.println("EOF6");
-        audio.connecttoFS(SPIFFS, mp3_files[6].c_str());
-        pwmMotor(2);
+        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());  // "This is it for home team"
+        pwmMotor(4);  // Home player ball leaves player
     }
     if (i == 7)
     {
         Serial.println("EOF7");
-        audio.connecttoFS(SPIFFS, mp3_files[7].c_str());
-        pwmMotor(2);
+        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());  // This is it for away team"
+        pwmMotor(2);  // Away player ball leaves player
     }
     if (i == 8)
     {
         Serial.println("EOF8");
-        audio.connecttoFS(SPIFFS, mp3_files[8].c_str());
-        pwmMotor(2);
+        audio.connecttoFS(SPIFFS, mp3_files[6].c_str());  // "When a goal is scored, a longer..."
     }
     if (i == 9)
     {
         Serial.println("EOF9");
-        audio.connecttoFS(SPIFFS, mp3_files[9].c_str());
-        pwmMotor(2);
+        audio.connecttoFS(SPIFFS, mp3_files[7].c_str());  // "This is a home player kicking or heading..."
+        pwmMotor(4);
     }
     if (i == 10)
     {
         Serial.println("EOF10");
-        audio.connecttoFS(SPIFFS, mp3_files[10].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[9].c_str());  // "This is an away player kicking or heading..."
         pwmMotor(2);
     }
     if (i == 11)
     {
         Serial.println("EOF11");
-        audio.connecttoFS(SPIFFS, mp3_files[11].c_str());
-        pwmMotor(2);
-    }
-    if (i == 12)
-    {
-        Serial.println("EOF12");
-        audio.connecttoFS(SPIFFS, mp3_files[12].c_str());
-        pwmMotor(2);
-    }
-    if (i == 13)
-    {
-        Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[13].c_str());
+        audio.connecttoFS(SPIFFS, mp3_files[10].c_str());  // "With this information..."
         pwmMotor(2);
         exit_loop = true;
         Serial.println("exiting loop");

@@ -36,17 +36,6 @@ void wifiManagerSetup()
 }
 
 
-long lastReconnectAttempt = 0;
-
-boolean reconnect()
-{
-    if (client.connect(THINGNAME))
-    {
-        client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-    }
-    return client.connected();
-}
-
 void wifi_and_permissions_setup()
 {
     wifiManagerSetup();
@@ -65,8 +54,6 @@ void setup()
     wifi_and_permissions_setup();
 
     delay(1500);
-    lastReconnectAttempt = 0;
-
     while (!client.connect(THINGNAME)){
         Serial.print(".");
         delay(100);

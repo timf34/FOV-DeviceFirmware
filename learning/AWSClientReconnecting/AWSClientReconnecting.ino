@@ -72,7 +72,8 @@ void setup()
     delay(1500);
     lastReconnectAttempt = 0;
 
-    while (!client.connect(THINGNAME)){
+    while (!client.connect(THINGNAME))
+    {
         Serial.print(".");
         delay(100);
     }
@@ -83,7 +84,13 @@ void loop()
 {
     Serial.print("Client state: ");
     Serial.println(client.state());
-    if (!client.connected())
+
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        Serial.println("WiFi Disconnected! Reconnecting...");
+        wifiManagerSetup();
+    }
+    else if (!client.connected())
     {
         long now = millis();
         if (now - lastReconnectAttempt > 5000)
@@ -103,6 +110,8 @@ void loop()
         client.loop();
     }
 
-    
-    delay(500);   
+    Serial.print("WiFi status: ");
+    Serial.println(WiFi.status());
+
+    delay(500);
 }

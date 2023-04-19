@@ -41,17 +41,6 @@ void wifiManagerSetup()
     }
 }
 
-long lastReconnectAttempt = 0;
-
-boolean reconnect()
-{
-    if (client.connect(THINGNAME))
-    {
-        client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-    }
-    return client.connected();
-}
-
 void wifi_and_permissions_setup()
 {
     wifiManagerSetup();
@@ -62,6 +51,20 @@ void wifi_and_permissions_setup()
 
     client.setServer(AWS_IOT_ENDPOINT, 8883);
     client.setCallback(callback);
+}
+
+
+long lastReconnectAttempt = 0;
+
+boolean reconnect()
+{
+    while (!client.connect(THINGNAME))
+    {
+        Serial.print(".");
+        delay(100);
+    }
+    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+    return client.connected();
 }
 
 void setup()
@@ -106,7 +109,6 @@ void loop()
     else
     {
         // Client connected
-
         client.loop();
     }
 

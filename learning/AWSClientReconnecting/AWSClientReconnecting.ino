@@ -85,9 +85,6 @@ void setup()
 
 void loop()
 {
-    Serial.print("Client state: ");
-    Serial.println(client.state());
-
     if (WiFi.status() != WL_CONNECTED)
     {
         Serial.println("WiFi Disconnected! Reconnecting...");
@@ -111,7 +108,8 @@ void loop()
         // Client connected
         client.loop();
     }
-
+    Serial.print("Client state: ");
+    Serial.println(client.state());
     Serial.print("WiFi status: ");
     Serial.println(WiFi.status());
 

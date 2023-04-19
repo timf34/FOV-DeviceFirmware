@@ -23,9 +23,11 @@ String mp3_files[numberElements] =
         "FovTut1.mp3",
         "FovTut2new.mp3",
         "FovTut3.mp3",
-        "FovTut4New.mp3",
-        "FovTut5New.mp3",
+        "FovTut4Updated.mp3",
+        "FovTut5Updated.mp3",
         "FovTut6.mp3",
+        "ThisIsItForHomeTeam.mp3",
+        "ThisIsItForAwayTeam.mp3",
         "FovTut7.mp3",
         "FovTut8.mp3",
         "FovTut9.mp3",
@@ -41,6 +43,7 @@ int period = 30;
 unsigned long time_now = 0;
 bool AudioOn = true;
 bool eof = false;
+bool exit_loop = false;  // For exiting from the audio tutorial. 
 
 #define ENABLE_Y 19
 #define DIR_Y 13
@@ -256,20 +259,8 @@ void audio_eof_mp3(const char *info)
     }
     if (i == 13)
     {
-        Serial.println("EOF5");
+        Serial.println("EOF13");
         audio.connecttoFS(SPIFFS, mp3_files[13].c_str());
-        pwmMotor(2);
-    }
-    if (i == 14)
-    {
-        Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[14].c_str());
-        pwmMotor(2);
-    }
-    if (i == 15)
-    {
-        Serial.println("EOF5");
-        audio.connecttoFS(SPIFFS, mp3_files[15].c_str());
         pwmMotor(2);
     }
 

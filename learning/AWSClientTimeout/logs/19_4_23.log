@@ -1,0 +1,43 @@
+With a timeout of 40 seconds and setKeepAlive to 15 
+
+Note that I'm getting -4 as the error instead of -3!
+
+Ah ok so -4 is for the timeout... -3 is for connection lost! Which isn't necessarily a timeout! 
+
+..Connecting to AWS IOTAWS IoT Connected!
+Client state: 0
+Client state: 0
+Client state: 0
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Free memory: 295488
+Connecting to Wi-Fi (ens
+
+
+And this is it with a timeout of 20 seconds and setKeepAlive of 15 
+
+...Connecting to AWS IOTAWS IoT Connected!
+Client state: 0
+Client state: 0
+Client state: 0
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4
+Client state: -4

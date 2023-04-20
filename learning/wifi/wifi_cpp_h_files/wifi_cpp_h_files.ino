@@ -39,11 +39,12 @@ void setup()
 void loop()
 {
     Serial.print("WiFi status: ");
-    Serial.println(wifiConnection.isConnected());
+    Serial.println(wifiConnection.getStatus());
 
     if (!wifiConnection.isConnected())
     {
         Serial.println("Reconnecting to Wi-Fi...");
         wifiConnection.connectWiFi(ssid, password);
     }
+    delay(250);
 }

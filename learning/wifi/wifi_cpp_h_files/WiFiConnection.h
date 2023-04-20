@@ -12,6 +12,7 @@ public:
     void connectWiFi(const char *ssid, const char *password);
     void autoConnectWiFi(const char *apName, const char *apPassword);
     bool isConnected();
+    int getStatus();
     WiFiClientSecure &getSecureClient();
     String getUserInputTopic();
     String getConnectedSSID();

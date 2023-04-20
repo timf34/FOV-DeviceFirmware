@@ -53,6 +53,10 @@ bool WiFiConnection::isConnected() {
     return WiFi.status() == WL_CONNECTED;
 }
 
+int WiFiConnection::getStatus() {
+    return WiFi.status();
+}
+
 WiFiClientSecure& WiFiConnection::getSecureClient() {
     return _secureClient;
 }

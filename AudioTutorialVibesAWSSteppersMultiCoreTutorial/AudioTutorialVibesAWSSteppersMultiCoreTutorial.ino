@@ -680,9 +680,6 @@ void setup()
     client.unsubscribe(AWS_IOT_SUBSCRIBE_TOPIC);
     client.disconnect();
 
-    // Delete client 
-    // client.~PubSubClient();
-
     while (!exit_loop)
     {
         audio.loop();
@@ -705,7 +702,6 @@ void setup()
 
 
     Serial.println("Entering game day mode");
-    connectAWS(); // Temp commenting otu 
 
     if (use_cores == true)
     {

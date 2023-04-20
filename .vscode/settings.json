@@ -31,6 +31,7 @@
         "cwchar": "cpp",
         "iosfwd": "cpp",
         "stdexcept": "cpp",
-        "xtr1common": "cpp"
+        "xtr1common": "cpp",
+        "string": "cpp"
     }
 }

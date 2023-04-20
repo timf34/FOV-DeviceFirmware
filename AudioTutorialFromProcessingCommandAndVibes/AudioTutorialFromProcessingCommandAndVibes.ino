@@ -37,19 +37,19 @@ Audio audio;
 const int numberElements = 18;
 String mp3_files[numberElements] =
     {
-        // "FovTut1a.mp3",  // Just commenting these out to speed up testing
-        // "FovTut1b.mp3",
-        // "FovTut2new.mp3",
-        // "NewTut3.mp3",
+        "FovTut1a.mp3",  
+        "FovTut1b.mp3",
+        "FovTut2new.mp3",
+        "NewTut3.mp3",
         "NewTut4.mp3",
         "NewTut5.mp3",
-        // "NewTut6.mp3",
-        // "NewTut7.mp3",
-        // "NewTut8.mp3",
-        // "NewTut9.mp3",
-        // "NewTut10.mp3",
-        // "NewTut11.mp3",
-        // "NewTut12.mp3",
+        "NewTut6.mp3",
+        "NewTut7.mp3",
+        "NewTut8.mp3",
+        "NewTut9.mp3",
+        "NewTut10.mp3",
+        "NewTut11.mp3",
+        "NewTut12.mp3",
         "ThisIsItForAwayTeam.mp3",  // index 13
         "ThisIsItForHomeTeam.mp3"}; // index 14
 
@@ -277,10 +277,6 @@ void audio_eof_mp3(const char *info)
         Serial.println("EOF4");
         pwmMotor(4); 
         audio.connecttoFS(SPIFFS, mp3_files[4].c_str()); // "You should feel it now. It has a deeper, lower pitch rumble"
-        
-        // TODO: note that this is just temporary! For testing!
-        exit_loop = true;
-        Serial.println("exiting loop");
     }
     if (i == 5)
     {
@@ -452,7 +448,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     pass = doc["Pa"];
     goal = doc["G"];
 
-    if (tutorial_num == 1)
+    if (tutorial_num == DEVICE_NUM)
     {
         Serial.println("Tutorial 1");
         audio_tutorial();

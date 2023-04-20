@@ -61,6 +61,7 @@ unsigned long time_now = 0;
 bool AudioOn = true;
 bool eof = false;
 bool exit_loop = false;
+bool begin_audio = true;
 
 // End of audio initialization
 
@@ -403,6 +404,33 @@ void connectAWS()
     Serial.println("AWS IoT Connected!");
 }
 
+void audio_tutorial()
+{
+
+    // Disconnect from the MQTT broker
+    client.unsubscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+    client.disconnect();
+
+    // Delete core1 task
+    // vTaskDelete(Core1Code)
+
+    audio.connecttoFS(SPIFFS, mp3_files[0].c_str()); // "Welcome to the tutorial"
+    i++;
+
+    while (!exit_loop)
+    {
+        audio.loop();
+
+        if (begin_audio == true)
+        {
+            tutorial();
+            begin_audio = false;
+        }
+    }
+
+    reconnect();
+}
+
 void messageHandler(char *topic, byte *payload, unsigned int length)
 {
 
@@ -424,22 +452,10 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     pass = doc["Pa"];
     goal = doc["G"];
 
-    Serial.print("X Coord: ");
-    Serial.println(xReceived);
-    Serial.print("Y Coord: ");
-    Serial.println(yReceived);
-    Serial.print("Possession: ");
-    Serial.println(possession);
-    Serial.print("Pass: ");
-    Serial.println(pass);
-    Serial.print("Goal: ");
-    Serial.println(goal);
-
     if (tutorial_num == 1)
     {
         Serial.println("Tutorial 1");
-        audio.connecttoFS(SPIFFS, mp3_files[0].c_str()); // "Welcome to the tutorial"
-        i++;
+        audio_tutorial();
     }
 
     // home
@@ -651,7 +667,6 @@ void Core1Code(void *pvParameters)
     }
 }
 
-bool begin_audio = true;
 
 void setup()
 {
@@ -680,16 +695,16 @@ void setup()
     client.unsubscribe(AWS_IOT_SUBSCRIBE_TOPIC);
     client.disconnect();
 
-    while (!exit_loop)
-    {
-        audio.loop();
+    // while (!exit_loop)
+    // {
+    //     audio.loop();
 
-        if (begin_audio == true)
-        {
-            tutorial();
-            begin_audio = false;
-        }
-    }
+    //     if (begin_audio == true)
+    //     {
+    //         tutorial();
+    //         begin_audio = false;
+    //     }
+    // }
 
     reconnect();  // Note: I might not be able to call this as a void function, but I'll try it for now.
 

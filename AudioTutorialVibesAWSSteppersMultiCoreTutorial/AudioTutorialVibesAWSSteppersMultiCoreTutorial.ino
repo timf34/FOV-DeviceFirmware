@@ -37,19 +37,19 @@ Audio audio;
 const int numberElements = 18;
 String mp3_files[numberElements] =
     {
-        "FovTut1a.mp3",
-        "FovTut1b.mp3",
-        "FovTut2new.mp3",
-        "NewTut3.mp3",
+        // "FovTut1a.mp3",  // Just commenting these out to speed up testing
+        // "FovTut1b.mp3",
+        // "FovTut2new.mp3",
+        // "NewTut3.mp3",
         "NewTut4.mp3",
         "NewTut5.mp3",
-        "NewTut6.mp3",
-        "NewTut7.mp3",
-        "NewTut8.mp3",
-        "NewTut9.mp3",
-        "NewTut10.mp3",
-        "NewTut11.mp3",
-        "NewTut12.mp3",
+        // "NewTut6.mp3",
+        // "NewTut7.mp3",
+        // "NewTut8.mp3",
+        // "NewTut9.mp3",
+        // "NewTut10.mp3",
+        // "NewTut11.mp3",
+        // "NewTut12.mp3",
         "ThisIsItForAwayTeam.mp3",  // index 13
         "ThisIsItForHomeTeam.mp3"}; // index 14
 
@@ -126,6 +126,7 @@ long stepper_y_pos = 0;
 int vibeMode = 10;
 int possession = 66;
 int prevPossession = 66;
+int tutorial_num = 0;
 int pass = 0;
 int receive = 0;
 int goal = 0;
@@ -275,6 +276,10 @@ void audio_eof_mp3(const char *info)
         Serial.println("EOF4");
         pwmMotor(4); 
         audio.connecttoFS(SPIFFS, mp3_files[4].c_str()); // "You should feel it now. It has a deeper, lower pitch rumble"
+        
+        // TODO: note that this is just temporary! For testing!
+        exit_loop = true;
+        Serial.println("exiting loop");
     }
     if (i == 5)
     {
@@ -394,7 +399,7 @@ void connectAWS()
     }
 
     // Subscribe to a topic
-    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC, 0);
     Serial.println("AWS IoT Connected!");
 }
 
@@ -413,21 +418,29 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
 
     xReceived = doc["X"];
     yReceived = doc["Y"];
+    tutorial_num = doc["T"];
 
     possession = doc["P"];
     pass = doc["Pa"];
     goal = doc["G"];
 
-    // Serial.print("X Coord: ");
-    // Serial.println(xReceived);
-    // Serial.print("Y Coord: ");
-    // Serial.println(yReceived);
-    // Serial.print("Possession: ");
-    // Serial.println(possession);
-    // Serial.print("Pass: ");
-    // Serial.println(pass);
-    // Serial.print("Goal: ");
-    // Serial.println(goal);
+    Serial.print("X Coord: ");
+    Serial.println(xReceived);
+    Serial.print("Y Coord: ");
+    Serial.println(yReceived);
+    Serial.print("Possession: ");
+    Serial.println(possession);
+    Serial.print("Pass: ");
+    Serial.println(pass);
+    Serial.print("Goal: ");
+    Serial.println(goal);
+
+    if (tutorial_num == 1)
+    {
+        Serial.println("Tutorial 1");
+        audio.connecttoFS(SPIFFS, mp3_files[0].c_str()); // "Welcome to the tutorial"
+        i++;
+    }
 
     // home
     if (possession == 0)
@@ -570,6 +583,8 @@ void Core0Code(void *pvParameters)
         // Serial.println("TaskCore1: x = " + String(*xReceived));
         // Serial.println("TaskCore1: y = " + String(*yReceived));
         // Serial.println("TaskCore1: xSpd = " + String(*xSpd) + " ySpd = " + String(*ySpd));
+        Serial.print("Client status: ");
+        Serial.println(client.state());
 
         positionMove[0] = *xReceived * xConvert;
         positionMove[1] = *yReceived * yConvert;
@@ -588,11 +603,50 @@ void Core0Code(void *pvParameters)
     }
 }
 
+long lastReconnectAttempt = 0;
+
+boolean reconnect()
+{
+    while (!client.connect(THINGNAME))
+    {
+        Serial.print(".");
+        delay(100);
+    }
+    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+    return client.connected();
+}
+
 void Core1Code(void *pvParameters)
 {
     for (;;)
     {
-        client.loop();
+        if (WiFi.status() != WL_CONNECTED)
+        {   
+            Serial.println("WiFi Disconnected! Reconnecting...");
+            wifiManagerSetup();
+        }
+        else if (!client.connected())
+        {
+            long now = millis();
+            if (now - lastReconnectAttempt > 5000)
+            {
+                lastReconnectAttempt = now;
+                // Attempt to reconnect
+                if (reconnect())
+                {
+                    lastReconnectAttempt = 0;
+                }
+            }
+        }  
+        else
+        {
+            client.loop();
+        }
+        Serial.println("Client 1 code");
+        Serial.print("WiFi status: ");
+        Serial.println(WiFi.status());
+        Serial.print("Client status: ");
+        Serial.println(client.state());
         vTaskDelay(60);
     }
 }
@@ -602,6 +656,8 @@ bool begin_audio = true;
 void setup()
 {
     Serial.begin(9600);
+
+    client.setKeepAlive(300);  // Set the keep alive interval to 300 seconds
 
     stepper_X.setCurrentPosition(0);
     stepper_Y.setCurrentPosition(0);
@@ -619,6 +675,13 @@ void setup()
     AudioSetup();
     listFilesInSPIFFS();
 
+    connectAWS(); 
+
+    client.unsubscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+    client.disconnect();
+
+    // Delete client 
+    // client.~PubSubClient();
 
     while (!exit_loop)
     {
@@ -631,8 +694,18 @@ void setup()
         }
     }
 
+    while (!client.connect(THINGNAME))
+    {
+        Serial.print(".");
+        delay(100);
+    }
+
+    // Subscribe to a topic
+    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+
+
     Serial.println("Entering game day mode");
-    connectAWS();
+    connectAWS(); // Temp commenting otu 
 
     if (use_cores == true)
     {
@@ -664,6 +737,7 @@ void loop()
 {
     // Serial.println("Looping");
     // Serial.println("Client state: " + String(client.state()));
+    // Note: literally printing any statement here while we are doing the audio tutorial, will cause no audio to play! Although the timing of the fingerpiece movement and vibrations will still be correct!
     delay(5000);
 }
 

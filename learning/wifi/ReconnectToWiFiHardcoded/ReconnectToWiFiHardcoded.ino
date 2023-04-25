@@ -12,7 +12,7 @@
 #define AWS_IOT_PUBLISH_TOPIC "esp32/globalTest"
 #define AWS_IOT_SUBSCRIBE_TOPIC "dalymount_IRL/pub"
 
-WiFiClientSecure net = WiFiClientSecure();
+WiFiClientSecure net;
 PubSubClient client(net);
 
 void callback(char *topic, byte *payload, unsigned int length)

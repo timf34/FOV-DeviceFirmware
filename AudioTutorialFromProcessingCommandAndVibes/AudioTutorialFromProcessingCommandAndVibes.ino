@@ -132,7 +132,6 @@ int pass = 0;
 int receive = 0;
 int goal = 0;
 
-String userInputTopic;
 String shared_wifi_psk, shared_wifi_ssid;
 
 void AudioSetup()
@@ -206,8 +205,8 @@ void wifiManagerSetup()
     WiFi.mode(WIFI_STA);
     WiFiManager wm;
 
-    // Uncomment for wifi page setup
-    wm.resetSettings();
+    // Erases previous wifi creds 
+    // wm.resetSettings();
     bool res;
     WiFiManagerParameter custom_text_box("my_text", "Enter your string here", "default string", 50);
     wm.addParameter(&custom_text_box);
@@ -224,7 +223,6 @@ void wifiManagerSetup()
         // if you get here you have connected to the WiFi
         Serial.println("connected");
     }
-    userInputTopic = custom_text_box.getValue();
     shared_wifi_psk = WiFi.psk();
     shared_wifi_ssid = WiFi.SSID();
 }
@@ -867,7 +865,7 @@ void homeSteppers()
         stepper_X.moveTo(initial_homing_X); // Set the position to move to
         initial_homing_X--;                 // Decrease by 1 for next move if needed
         stepper_X.run();                    // Start moving the stepper
-        delay(1);
+        delayMicroseconds(330); // Using Microseconds works in allowing it to run fast!
         if (millis() - homingTimer > 30000)
         {
             Serial.println("Homing X Axis Timed Out");
@@ -907,7 +905,7 @@ void homeSteppers()
         stepper_Y.moveTo(initial_homing_Y); // Set the position to move to
         initial_homing_Y--;                 // Decrease by 1 for next move if needed
         stepper_Y.run();                    // Start moving the stepper
-        delay(1);
+        delayMicroseconds(330);
         if (millis() - homingTimer > 30000)
         {
             Serial.println("Homing Y Axis Timed Out");

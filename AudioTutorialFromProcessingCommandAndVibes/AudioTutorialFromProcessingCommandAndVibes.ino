@@ -945,7 +945,7 @@ void pwmMotor(int vibeMode)
     {
         ledcWrite(PWM1_Ch, 210);
         delay(25);
-        ledcWrite(PWM1_Ch, 145);
+        ledcWrite(PWM1_Ch, 165);
         delay(60);
         ledcWrite(PWM1_Ch, 0);
     }
@@ -954,8 +954,8 @@ void pwmMotor(int vibeMode)
     {
         ledcWrite(PWM1_Ch, 210);
         delay(25);
-        ledcWrite(PWM1_Ch, 145);
-        delay(240);
+        ledcWrite(PWM1_Ch, 165);
+        delay(350);
         ledcWrite(PWM1_Ch, 0);
     }
 
@@ -965,7 +965,7 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 210);
         delay(40);
         ledcWrite(PWM2_Ch, 75);
-        delay(100);
+        delay(80);
         ledcWrite(PWM2_Ch, 0);
     }
 
@@ -975,7 +975,7 @@ void pwmMotor(int vibeMode)
         ledcWrite(PWM2_Ch, 210);
         delay(50);
         ledcWrite(PWM2_Ch, 70);
-        delay(350);
+        delay(400);
         ledcWrite(PWM2_Ch, 0);
     }
 

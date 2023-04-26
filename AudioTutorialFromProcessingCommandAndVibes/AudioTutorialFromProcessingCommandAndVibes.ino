@@ -556,6 +556,7 @@ void Core0Code(void *pvParameters)
     // stepperSetup();
     // hallSensorsSetup();
     homeSteppers();
+    moveStepsToPos(52, 32, 5000, 5000); // Centre up the fingerpiece
 
     digitalWrite(ENABLE_X, LOW);
     digitalWrite(ENABLE_Y, LOW);
@@ -697,8 +698,6 @@ void setup()
     pwmPinsSetup();
     stepperSetup();
     hallSensorsSetup();
-    homeSteppers();
-    moveStepsToPos(52, 32, 5000, 5000); // Centre up the fingerpiece
 
     AudioSetup();
     listFilesInSPIFFS();

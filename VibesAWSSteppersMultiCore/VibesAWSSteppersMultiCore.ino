@@ -185,7 +185,7 @@ void connectAWS()
     }
 
     // Subscribe to a topic
-    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC, 0);
     Serial.println("AWS IoT Connected!");
 }
 
@@ -318,8 +318,9 @@ void hallSensorsSetup()
 
 void Core0Code(void *pvParameters)
 {
-    stepperSetup();
-    hallSensorsSetup();
+    // Note: these seem to have to be initialized here for things to work.
+    // stepperSetup();
+    // hallSensorsSetup();
     homeSteppers();
 
     digitalWrite(ENABLE_X, LOW);
@@ -360,6 +361,8 @@ void Core0Code(void *pvParameters)
         // Serial.println("TaskCore1: x = " + String(*xReceived));
         // Serial.println("TaskCore1: y = " + String(*yReceived));
         // Serial.println("TaskCore1: xSpd = " + String(*xSpd) + " ySpd = " + String(*ySpd));
+        Serial.print("Client status: ");
+        Serial.println(client.state());
 
         positionMove[0] = *xReceived * xConvert;
         positionMove[1] = *yReceived * yConvert;
@@ -391,6 +394,8 @@ void setup()
 {
     Serial.begin(9600);
 
+    client.setKeepAlive(300); // Set the keep alive interval to 300 seconds
+
     stepper_X.setCurrentPosition(0);
     stepper_Y.setCurrentPosition(0);
 
@@ -398,8 +403,13 @@ void setup()
     Serial.print("Free memory: ");
     Serial.println(ESP.getFreeHeap());
 
-    connectAWS();
     pwmPinsSetup();
+    stepperSetup();
+    hallSensorsSetup();
+    homeSteppers();
+    moveStepsToPos(52, 32, 5000, 5000); // Centre up the fingerpiece
+
+    connectAWS();
 
     if (use_cores == true)
     {

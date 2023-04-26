@@ -457,8 +457,8 @@ void setup()
     pwmPinsSetup();
     stepperSetup();
     hallSensorsSetup();
-    homeSteppers();
-    moveStepsToPos(52, 32, 5000, 5000); // Centre up the fingerpiece
+    // homeSteppers();
+    // moveStepsToPos(52, 32, 5000, 5000); // Centre up the fingerpiece
 
     connectAWS();
 

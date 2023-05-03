@@ -22,6 +22,11 @@
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
 
+#define MAX_QUEUE_SIZE 12 // we will use this queue for remembering mose recent 12 messages (i.e. the last 3 seconds)
+int queue[MAX_QUEUE_SIZE];
+int queue_index = 0;
+int front = 0, rear = -1;
+
 #define ENABLE_Y 19
 #define DIR_Y 13
 #define STEP_Y 14
@@ -375,7 +380,9 @@ void Core0Code(void *pvParameters)
 
         myMutex.unlock();
 
-        moveStepsToPos(xReceivedLocal, yReceivedLocal, xSpdLocal, ySpdLocal);
+        Serial.println("Before add_new_message" + String(xReceivedLocal) + " " + String(yReceivedLocal) + " " + String(xSpdLocal) + " " + String(ySpdLocal));
+        add_new_value(xReceivedLocal, yReceivedLocal, xSpdLocal, ySpdLocal);
+        // moveStepsToPos(xReceivedLocal, yReceivedLocal, xSpdLocal, ySpdLocal);
 
         vTaskDelay(50);
     }
@@ -412,12 +419,12 @@ void Core1Code(void *pvParameters)
     for (;;)
     {
         if (WiFi.status() != WL_CONNECTED)
-        {   
+        {
             // Hardcoded wifi reconnect
             // Serial.println("WiFi Disconnected! Reconnecting...");
             // wifiManagerSetup();
 
-            // Auto wifi reconnect 
+            // Auto wifi reconnect
             reconnectToWiFi();
         }
         else if (!client.connected())
@@ -432,7 +439,7 @@ void Core1Code(void *pvParameters)
                     lastReconnectAttempt = 0;
                 }
             }
-        }  
+        }
         else
         {
             client.loop();
@@ -445,7 +452,7 @@ void setup()
 {
     Serial.begin(9600);
 
-    client.setKeepAlive(300);  // Set the keep alive interval to 300 seconds
+    client.setKeepAlive(300); // Set the keep alive interval to 300 seconds
 
     stepper_X.setCurrentPosition(0);
     stepper_Y.setCurrentPosition(0);
@@ -457,8 +464,6 @@ void setup()
     pwmPinsSetup();
     stepperSetup();
     hallSensorsSetup();
-    // homeSteppers();
-    // moveStepsToPos(52, 32, 5000, 5000); // Centre up the fingerpiece
 
     connectAWS();
 
@@ -532,6 +537,12 @@ void speedCalc(float x1, float y1, float x2, float y2)
     }
 }
 
+void disengageMotors()
+{
+    digitalWrite(ENABLE_X, HIGH);
+    digitalWrite(ENABLE_Y, HIGH);
+}
+
 void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
 {
     Serial.print("X Speed: ");
@@ -569,9 +580,6 @@ void moveStepsToPos(long x, long y, int _xSpd, int _ySpd)
         stepper_Y.run();
         delayMicroseconds(1); // Using Microseconds works in allowing it to run fast!
     }
-
-    digitalWrite(ENABLE_X, HIGH);
-    digitalWrite(ENABLE_Y, HIGH);
 }
 
 void homeSteppers()
@@ -732,4 +740,28 @@ void print_stepper_positions()
     Serial.println(stepper_x_pos);
     Serial.print("Y position: ");
     Serial.println(stepper_y_pos);
+}
+
+
+int are_all_queue_values_same() {
+    int i;
+    for (i = 0; i < MAX_QUEUE_SIZE - 1; i++) {
+        if (queue[i] != queue[i+1]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void add_new_value(int xReceivedLocal, int yReceivedLocal, int xSpdLocal, int ySpdLocal) {
+
+    queue[queue_index] = xReceivedLocal;
+    queue_index = (queue_index + 1) % MAX_QUEUE_SIZE;
+
+    if (are_all_queue_values_same()){
+        disengageMotors();
+    }
+    else{
+        moveStepsToPos(xReceivedLocal, yReceivedLocal, xSpdLocal, ySpdLocal);
+    }
 }

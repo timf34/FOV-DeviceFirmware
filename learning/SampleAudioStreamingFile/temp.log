@@ -1,0 +1,82 @@
+This link ("http://mp3.ffh.de/ffhchannels/80er.aac") seems to work but we have no sound to check 
+
+---
+
+When running the original .acc link (http://iskatel.hostingradio.ru:8015/iskatel-320.aa) which worked we get the following 
+
+info        Connect to new host: "http://iskatel.hostingradio.ru:8015/iskatel-320.aac"
+info        PSRAM found, inputBufferSize: 283615 bytes
+info        buffers freed, free Heap: 201352 bytes
+info        Connection has been established in 567 ms, free Heap: 200356 bytes
+bitrate     320000
+bitrate     320000
+info        icy-name: iskatel
+station     iskatel
+info        AACDecoder has been initialized, free Heap: 173496 bytes
+lasthost    http://iskatel.hostingradio.ru:8015/iskatel-320.aac
+info        stream ready
+info        syncword found at pos 0
+info        Channels: 2
+info        SampleRate: 44100
+info        BitsPerSample: 16
+info        BitRate: 320069
+info        AAC HeaderFormat: ADTS
+info        AAC Codec: MPEG-2
+info        AAC Profile: LowComplexity
+info        StreamTitle='Жуки - Батарейка'
+streamtitle Жуки - Батарейка
+info        VBR recognized, audioFileDuration is estimated
+info        slow stream, dropouts are possible
+info        slow stream, dropouts are possible
+info        slow stream, dropouts are possible
+...
+
+The _slow stream, dropouts are possible_ goes on forever 
+
+--- 
+
+Setting/ adding `WiFi.setSleep(false);` reduces the _slow stream, dropouts are possible_... we only get that notification very rarely (4 times over a 1 minute period)
+
+
+info      info        Connect to new host: "http://iskatel.hostingradio.ru:8015/iskatel-320.aac"
+info        PSRAM found, inputBufferSize: 283615 bytes
+info        buffers freed, free Heap: 201332 bytes
+info        Connection has been established in 109 ms, free Heap: 200328 bytes
+bitrate     320000
+bitrate     320000
+info        icy-name: iskatel
+station     iskatel
+info        AACDecoder has been initialized, free Heap: 173480 bytes
+lasthost    http://iskatel.hostingradio.ru:8015/iskatel-320.aac
+info        stream ready
+info        syncword found at pos 0
+info        Channels: 2
+info        SampleRate: 44100
+info        BitsPerSample: 16
+info        BitRate: 320069
+info        AAC HeaderFormat: ADTS
+info        AAC Codec: MPEG-2
+info        AAC Profile: LowComplexity
+info        StreamTitle=' - '
+streamtitle  - 
+info        VBR recognized, audioFileDuration is estimated
+info        StreamTitle='Joe Dassin - Les Champs Elysees'
+streamtitle Joe Dassin - Les Champs Elysees
+info        slow stream, dropouts are possible
+info        slow stream, dropouts are possible
+info        slow stream, dropouts are possible
+info        slow stream, dropouts are possible
+
+
+---
+
+
+Running BBC worldwide ("http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/http-icy-mp3-a/vpid/bbc_world_service/format/pls.pls")
+
+info        Connect to new host: "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/http-icy-mp3-a/vpid/bbc_world_service/format/pls.pls"
+info        PSRAM found, inputBufferSize: 283615 bytes
+info        buffers freed, free Heap: 201088 bytes
+info        Connection has been established in 157 ms, free Heap: 200084 bytes
+streamtitle HTTP/1.1 403 Forbidden
+station     
+icyurl      

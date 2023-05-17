@@ -26,11 +26,17 @@ void setup() {
     WiFi.disconnect();
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid.c_str(), password.c_str());
+    WiFi.setSleep(false);
     while (WiFi.status() != WL_CONNECTED) delay(1500);
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    audio.setVolume(16); // default 0...21
-    audio.connecttohost("http://iskatel.hostingradio.ru:8015/iskatel-320.aac");  // aac
-
+    audio.setVolume(21); // default 0...21
+    audio.connecttohost("http://mp3.ffh.de/ffhchannels/80er.aac");  // aac -> appears to work 
+    // audio.connecttohost("http://iskatel.hostingradio.ru:8015/iskatel-320.aac");  // aac -> see log, get errors, but was able to reduce it. 
+    // audio.connecttohost("http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/http-icy-mp3-a/vpid/bbc_world_service/format/pls.pls");  // bbc
+    // audio.connecttohost("http://stream.antennethueringen.de/live/aac-64/stream.antennethueringen.de/");  // aac - should work. 
+    // audio.connecttohost("http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_vlow/ak/bbc_world_service.m3u8");  // bbc - 403 forbidden 
+    // audio.connecttohost("http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_world_service.m3u8");  // bbc - 403 forbidden 
+    // audio.connecttohost("http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_asian_network/bbc_asian_network.isml/bbc_asian_network-audio%3d96000.norewind.m3u8");  // bbc  - doesn't work on firmware I don't think - get "new request: _new url_"
 }
 
 void loop()

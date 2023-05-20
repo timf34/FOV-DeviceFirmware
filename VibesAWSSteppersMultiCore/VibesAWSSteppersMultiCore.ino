@@ -62,6 +62,7 @@ bool spdChange = false;
 
 int xReceived = 0;
 int yReceived = 0;
+int oob = 0;
 
 int prevX = 0;
 int prevY = 0;
@@ -213,6 +214,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     possession = doc["P"];
     pass = doc["Pa"];
     goal = doc["G"];
+    oob = doc["O"];
 
     // Serial.print("X Coord: ");
     // Serial.println(xReceived);
@@ -240,6 +242,10 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         {
             vibeMode = 1;
         }
+        else if (oob == 1)
+        {
+            vibeMode = 6;
+        }
         else
         {
             vibeMode = 0;
@@ -260,6 +266,10 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
         else if (goal == 1)
         {
             vibeMode = 1;
+        }
+        else if (oob == 1)
+        {
+            vibeMode = 7;
         }
         else
         {
@@ -721,6 +731,38 @@ void pwmMotor(int vibeMode)
         delay(50);
         ledcWrite(PWM2_Ch, 70);
         delay(350);
+        ledcWrite(PWM2_Ch, 0);
+    }
+
+    // Vibe mode = 6 away OOB
+    if (vibeMode == 6)
+    {
+        ledcWrite(PWM1_Ch, 210);
+        delay(25);
+        ledcWrite(PWM1_Ch, 145);
+        delay(100);
+        ledcWrite(PWM1_Ch, 0);
+        delay(150);
+        ledcWrite(PWM1_Ch, 210);
+        delay(25);
+        ledcWrite(PWM1_Ch, 145);
+        delay(100);
+        ledcWrite(PWM1_Ch, 0);
+    }
+
+    // Vibe mode = 7 home OOB
+    if (vibeMode == 7)
+    {
+        ledcWrite(PWM2_Ch, 210);
+        delay(40);
+        ledcWrite(PWM2_Ch, 75);
+        delay(130);
+        ledcWrite(PWM2_Ch, 0);
+        delay(150);
+        ledcWrite(PWM2_Ch, 210);
+        delay(40);
+        ledcWrite(PWM2_Ch, 75);
+        delay(130);
         ledcWrite(PWM2_Ch, 0);
     }
 

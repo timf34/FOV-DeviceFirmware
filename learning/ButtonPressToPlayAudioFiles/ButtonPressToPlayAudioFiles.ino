@@ -1,3 +1,10 @@
+/*
+Plays Yolo Bitches on Setup 
+
+Press button 1 or 3 to play OneZero
+Press button 2 to play SeventyTwo
+*/
+
 
 #include "Arduino.h"
 // #include "WiFi.h"
@@ -61,8 +68,8 @@ int trackNum = 0;
 
 int tdata[2];
 
-const int numberFiles = 1;
-String audio_files[numberFiles] = {"YoloBitches.mp3"};
+const int numberFiles = 3;
+String audio_files[numberFiles] = {"YoloBitches.mp3", "OneZero.mp3", "SeventyTwo.mp3"};
 
 unsigned long time_now = 0;
 bool AudioOn = false;
@@ -124,10 +131,6 @@ void debounce()
     {
         if (buttonArray[i].isPressed())
         {
-            //      Serial.print("The button ");
-            //      Serial.print(i + 1);
-            //      Serial.println(" is pressed");
-
             timePress[i] = millis();
 
             Serial.print("Press Count: ");
@@ -151,7 +154,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was pressed");
-                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
+                audio.connecttoFS(SPIFFS, audio_files[1].c_str());
                 AudioOn = true;
             }
             else if (i == 1 && btnHeld == false) // button two pressed
@@ -159,7 +162,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was pressed");
-                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
+                audio.connecttoFS(SPIFFS, audio_files[2].c_str());
                 AudioOn = true;
             }
 
@@ -168,7 +171,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was pressed");
-                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
+                audio.connecttoFS(SPIFFS, audio_files[1].c_str());
                 AudioOn = true;
             }
             else if (i == 0 && btnHeld == true) // button one held
@@ -176,7 +179,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was held");
-                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
+                audio.connecttoFS(SPIFFS, audio_files[1].c_str());
                 AudioOn = true;
             }
             else if (i == 1 && btnHeld == true) // button two held
@@ -184,7 +187,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was held");
-                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
+                audio.connecttoFS(SPIFFS, audio_files[1].c_str());
                 AudioOn = true;
             }
 

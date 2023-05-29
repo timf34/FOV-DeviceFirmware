@@ -151,6 +151,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was pressed");
+                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
                 AudioOn = true;
             }
             else if (i == 1 && btnHeld == false) // button two pressed
@@ -158,6 +159,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was pressed");
+                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
                 AudioOn = true;
             }
 
@@ -166,6 +168,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was pressed");
+                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
                 AudioOn = true;
             }
             else if (i == 0 && btnHeld == true) // button one held
@@ -173,6 +176,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was held");
+                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
                 AudioOn = true;
             }
             else if (i == 1 && btnHeld == true) // button two held
@@ -180,6 +184,7 @@ void debounce()
                 Serial.print("The button ");
                 Serial.print(i + 1);
                 Serial.println(" was held");
+                audio.connecttoFS(SPIFFS, audio_files[0].c_str());
                 AudioOn = true;
             }
 

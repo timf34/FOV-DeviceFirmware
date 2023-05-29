@@ -64,10 +64,6 @@ void btnSetup()
 const int mute = 0;
 Audio audio;
 
-int trackNum = 0;
-
-int tdata[2];
-
 const int numberFiles = 3;
 String audio_files[numberFiles] = {"YoloBitches.mp3", "OneZero.mp3", "SeventyTwo.mp3"};
 
@@ -217,8 +213,120 @@ void audio_info(const char *info)
 
 void audio_eof_mp3(const char *info)
 { // end of file
-    Serial.print("Track Number: ");
-    Serial.println(trackNum);
-
     eof = true;
 }
+
+
+/*
+GPT 4 refactoring - will test it later 
+
+#include <Audio.h>
+#include <ezButton.h>
+#include "FS.h"
+#include "SPIFFS.h"
+
+#define I2S_DOUT 22 // DIN connection
+#define I2S_BCLK 25 // Bit clock
+#define I2S_LRC 26  // Left Right Clock
+
+#define BUTTON_1_PIN 12
+#define BUTTON_2_PIN 4
+#define BUTTON_3_PIN 2
+#define BUTTON_NUM 3
+
+#define MUTE_PIN 0
+
+const String audio_files[] = {"YoloBitches.mp3", "OneZero.mp3", "SeventyTwo.mp3"};
+const long holdTime = 1500;
+
+ezButton buttonArray[BUTTON_NUM] = {
+    ezButton(BUTTON_1_PIN),
+    ezButton(BUTTON_2_PIN),
+    ezButton(BUTTON_3_PIN),
+};
+
+Audio audio;
+bool vibeOn = true;
+bool eof = false;
+
+void setup()
+{
+    Serial.begin(115200);
+    AudioSetup();
+    btnSetup();
+}
+
+void loop()
+{
+    audio.loop();
+    debounce();
+}
+
+void AudioSetup()
+{
+    SPIFFS.begin();
+    pinMode(MUTE_PIN, OUTPUT);
+    digitalWrite(MUTE_PIN, HIGH);
+    audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+    audio.setVolume(21);
+    audio.connecttoFS(SPIFFS, audio_files[0].c_str());
+}
+
+void btnSetup()
+{
+    for (byte i = 0; i < BUTTON_NUM; i++)
+    {
+        pinMode(buttonArray[i].getPin(), INPUT_PULLUP);
+        buttonArray[i].setDebounceTime(50);
+        buttonArray[i].setCountMode(COUNT_RISING);
+    }
+}
+
+void debounce()
+{
+    for (byte i = 0; i < BUTTON_NUM; i++)
+    {
+        buttonArray[i].loop(); // MUST call the loop() function first
+
+        if (buttonArray[i].isPressed())
+        {
+            Serial.print("Press Count: ");
+            Serial.println(buttonArray[i].getCount());
+        }
+
+        if (buttonArray[i].isReleased())
+        {
+            long heldTime = millis() - buttonArray[i].getLastChange();
+            bool btnHeld = heldTime > holdTime;
+
+            Serial.print("Held for: ");
+            Serial.println(heldTime);
+
+            if (!btnHeld) // button pressed
+            {
+                Serial.print("The button ");
+                Serial.print(i + 1);
+                Serial.println(" was pressed");
+                audio.connecttoFS(SPIFFS, audio_files[(i==1)?2:1].c_str());
+            }
+            else // button held
+            {
+                Serial.print("The button ");
+                Serial.print(i + 1);
+                Serial.println(" was held");
+
+                if (i == 2) // button three held
+                {
+                    vibeOn = !vibeOn;
+                    Serial.print("Vibration: ");
+                    Serial.println(vibeOn ? "ON" : "OFF");
+                }
+                else
+                {
+                    audio.connecttoFS(SPIFFS, audio_files[1].c_str());
+                }
+            }
+        }
+    }
+}
+*/

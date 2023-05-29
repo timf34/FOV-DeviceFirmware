@@ -54,6 +54,15 @@ unsigned long time_now = 0;
 bool AudioOn = false;
 bool eof = false;
 
+void wifiSetup()
+{
+    WiFi.disconnect();
+    WiFi.mode(WIFI_STA);
+    WiFi.begin("tim", "shopkeeper2");
+    WiFi.setSleep(false);
+    while (WiFi.status() != WL_CONNECTED) delay(1500);
+}
+
 void AudioSetup()
 {
     SPIFFS.begin();
@@ -67,6 +76,7 @@ void AudioSetup()
 void setup()
 {
     Serial.begin(115200);
+    wifiSetup();
     AudioSetup();
     btnSetup();
 }

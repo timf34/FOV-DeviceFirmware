@@ -69,9 +69,10 @@ void AudioSetup()
     pinMode(mute, OUTPUT);
     digitalWrite(mute, HIGH);
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    audio.setVolume(10); // 0...21
+    audio.setVolume(21); // 0...21
     // audio.connecttoFS(SPIFFS, audio_files[0].c_str());
-    audio.connecttohost("http://mp3.ffh.de/ffhchannels/80er.aac");  // aac -> This works.
+    // audio.connecttohost("http://mp3.ffh.de/ffhchannels/80er.aac");  // aac -> This works.
+    audio.connecttohost("http://listen-gbnews.sharp-stream.com/gbnews.aac");  // Working english channel 
 }
 
 void setup()
